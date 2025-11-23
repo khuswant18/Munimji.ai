@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Munimji - Business Accounts Simplified</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            fontSize: {
+              'base': '0.97rem',
+              'sm': '0.85rem', 
+              'xs': '0.75rem',
+              'card-title': ['1.125rem', { lineHeight: '1.4' }],
+              'card-body': ['0.95rem', { lineHeight: '1.4' }],
+              'h1-mobile': ['1.9rem', { lineHeight: '1.2' }],
+              'h1-desktop': ['2.8rem', { lineHeight: '1.1' }],
+              'h2': ['2.0rem', { lineHeight: '1.2' }],
+              'h3': ['1.25rem', { lineHeight: '1.4' }],
+            },
+            colors: {
+              primary: '#006A4E',
+              'primary-dark': '#004D38',
+              'brand-green': '#006A4E',
+              'brand-dark': '#004D38',
+              'brand-light': '#E8ECE4',
+              'bg-soft': '#f9f9f9',
+              'text-dark': '#1a1a1a',
+              'text-light': '#666666',
+            },
+            boxShadow: {
+              'card': '0 10px 30px -5px rgba(0, 0, 0, 0.05)',
+              'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html {
+        font-size: 15px;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #ffffff;
+        color: #1a1a1a;
+        line-height: 1.5;
+        font-size: 0.97rem;
+      }
+      /* Custom scrollbar for cleaner look */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #aaa;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
