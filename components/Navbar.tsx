@@ -114,7 +114,7 @@ const Navbar: React.FC = () => {
             rel="noopener noreferrer"
             className="w-full bg-brand-green text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2"
           >
-            Try Now <img src="./whatsapp.svg" />
+            Try Now <img src="./whatsapp.png" />
           </a>
         </div>
       )}
