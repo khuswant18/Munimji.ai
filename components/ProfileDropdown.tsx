@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, LogOut, Settings, ChevronDown } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { User, LogOut, Settings, ChevronDown, CreditCard, HelpCircle } from 'lucide-react';
+import { useNavigate, NavLink } from 'react-router-dom';
 import { logout } from '../utils/auth';
 
 const ProfileDropdown = () => {
@@ -45,16 +45,28 @@ const ProfileDropdown = () => {
           </div>
           
           <div className="py-1">
-            <button className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition-colors font-manrope">
+            <NavLink to="/dashboard/settings#profile" onClick={() => setIsOpen(false)} className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition-colors font-manrope">
+              <User className="w-4 h-4" />
+              <span>Profile</span>
+            </NavLink>
+            <NavLink to="/dashboard/settings#business" onClick={() => setIsOpen(false)} className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition-colors font-manrope">
               <Settings className="w-4 h-4" />
-              <span>Settings</span>
-            </button>
+              <span>Business Info</span>
+            </NavLink>
+            <NavLink to="/dashboard/settings#billing" onClick={() => setIsOpen(false)} className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition-colors font-manrope">
+              <CreditCard className="w-4 h-4" />
+              <span>Billing</span>
+            </NavLink>
+            <NavLink to="/dashboard/help" onClick={() => setIsOpen(false)} className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center space-x-2 transition-colors font-manrope">
+              <HelpCircle className="w-4 h-4" />
+              <span>Help & Support</span>
+            </NavLink>
             <button 
               onClick={handleLogout}
               className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2 transition-colors font-manrope"
             >
               <LogOut className="w-4 h-4" />
-              <span>Sign out</span>
+              <span>Log Out</span>
             </button>
           </div>
         </div>
