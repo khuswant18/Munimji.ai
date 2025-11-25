@@ -10,6 +10,8 @@ import Contact from './pages/Contact';
 import Pricing from './pages/Pricing';
 import HowItWorks from './pages/HowItWorks';
 import FAQPage from './pages/FAQPage';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
 
 // Scroll to top on route change
 const ScrollToTop = () => {
@@ -29,6 +31,8 @@ const App: React.FC = () => {
         <main className="flex-grow pt-20">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/dashboard/*" element={<DashboardPage />} />
             <Route path="/about" element={<About />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/pricing" element={<Pricing />} />

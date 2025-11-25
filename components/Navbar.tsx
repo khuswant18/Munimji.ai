@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { isAuthenticated, logout } from "../utils/auth";
+import ProfileDropdown from "./ProfileDropdown";
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,11 +23,20 @@ const Navbar: React.FC = () => {
   }, [location]);
 
   // Keeping existing links as requested
-  const navLinks = [
+  const isDashboard = location.pathname.startsWith('/dashboard');
+
+  const navLinks = !isDashboard ? [
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
-    { name: "Privacy", path: "/privacy" },
-    { name: "Terms", path: "/terms" },
+    { name: "Dashboard", path: isAuthenticated() ? "/dashboard" : "/login" },
+  ] : [
+    { name: 'Overview', path: '/dashboard' },
+    { name: 'Ledger', path: '/dashboard/ledger' },
+    { name: 'Customers', path: '/dashboard/customers' },
+    { name: 'Suppliers', path: '/dashboard/suppliers' },
+    { name: 'Cashbook', path: '/dashboard/cashbook' },
+    { name: 'Expenses', path: '/dashboard/expenses' },
+    { name: 'Reports', path: '/dashboard/reports' },
   ];
 
   return (
@@ -68,15 +80,19 @@ const Navbar: React.FC = () => {
 
         {/* Right CTA */}
         <div className="hidden md:flex items-center">
-          <a
-            href="https://wa.me/1234567890?text=I%20want%20to%20try%20Munimji"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-brand-green hover:bg-brand-dark text-white text-sm font-semibold py-2.5 px-6 rounded-full transition-colors flex items-center gap-2 shadow-md shadow-green-900/10"
-          >
-            Try Now
-            <img src="./whatsapp.png" className="h-5 w-auto" />
-          </a>
+          {isAuthenticated() ? (
+            <ProfileDropdown />
+          ) : (
+            <a
+              href="https://wa.me/1234567890?text=I%20want%20to%20try%20Munimji"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#006A4E] hover:bg-[#005a42] text-white text-sm font-semibold py-2.5 px-6 rounded-full transition-colors flex items-center gap-2 shadow-md shadow-green-900/10"
+            >
+              Try Now
+              <img src="./whatsapp.png" className="h-5 w-auto" />
+            </a>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -108,14 +124,26 @@ const Navbar: React.FC = () => {
             </NavLink>
           ))}
           <hr className="my-2 border-gray-100" />
-          <a
-            href="https://wa.me/1234567890?text=I%20want%20to%20try%20Munimji"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full bg-brand-green text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2"
-          >
-            Try Now <img src="./whatsapp.png" className="h-5 w-auto" />
-          </a>
+          {isAuthenticated() ? (
+             <button
+                onClick={() => {
+                   logout();
+                   navigate('/login');
+                }}
+                className="w-full bg-red-50 text-red-600 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
+             >
+                Sign Out
+             </button>
+          ) : (
+            <a
+              href="https://wa.me/1234567890?text=I%20want%20to%20try%20Munimji"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-[#006A4E] text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#005a42] transition-colors"
+            >
+              Try Now <img src="./whatsapp.png" className="h-5 w-auto" />
+            </a>
+          )}
         </div>
       )}
     </div>
