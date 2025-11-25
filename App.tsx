@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -11,7 +11,7 @@ import Pricing from './pages/Pricing';
 import HowItWorks from './pages/HowItWorks';
 import FAQPage from './pages/FAQPage';
 import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 
 // Scroll to top on route change
 const ScrollToTop = () => {
@@ -32,7 +32,11 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/dashboard/*" element={<DashboardPage />} />
+            <Route path="/dashboard/*" element={
+              <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+                <DashboardPage />
+              </Suspense>
+            } />
             <Route path="/about" element={<About />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/pricing" element={<Pricing />} />
