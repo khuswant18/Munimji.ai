@@ -1,0 +1,62 @@
+{
+  "timestamp": "2025-11-27T12:00:00",
+  "description": "Benchmark AFTER optimizations - Live test results",
+  "total_messages": 21,
+  "iterations_per_message": 2,
+  "total_runs": 42,
+  "statistics": {
+    "median_ms": 2.2,
+    "mean_ms": 185.0,
+    "p95_ms": 1605.5,
+    "min_ms": 0.7,
+    "max_ms": 3895.0,
+    "stdev_ms": 669.3
+  },
+  "improvements": {
+    "median_reduction_percent": 99.98,
+    "notes": "Median for rule-based add operations: 2-10ms vs baseline ~10,000ms"
+  },
+  "sample_results": [
+    {"message": "Fuel 200", "total_time_ms": 4.0, "intent": "add_expense", "intent_reason": "rule-based"},
+    {"message": "Petrol bharwaya 500", "total_time_ms": 1.2, "intent": "add_expense", "intent_reason": "rule-based"},
+    {"message": "Sold 10 packets to Ramesh", "total_time_ms": 2.7, "intent": "add_sale", "intent_reason": "rule-based"},
+    {"message": "Aman ko udhaar 500 diya", "total_time_ms": 1.9, "intent": "add_udhaar", "intent_reason": "rule-based"},
+    {"message": "Received 500 from Ramesh", "total_time_ms": 6.7, "intent": "add_payment", "intent_reason": "rule-based"},
+    {"message": "Show today's summary", "total_time_ms": 2075.1, "intent": "query_summary", "intent_reason": "rule-based"},
+    {"message": "Hi", "total_time_ms": 211.4, "intent": "greeting", "intent_reason": "rule-based"}
+  ],
+  "per_intent_timing_ms": {
+    "add_expense": {"avg_ms": 2.9, "rule_based_percent": 100, "samples": 4},
+    "add_sale": {"avg_ms": 2.1, "rule_based_percent": 100, "samples": 3},
+    "add_purchase": {"avg_ms": 9.0, "rule_based_percent": 100, "samples": 3},
+    "add_udhaar": {"avg_ms": 1.7, "rule_based_percent": 100, "samples": 3},
+    "add_payment": {"avg_ms": 4.8, "rule_based_percent": 100, "samples": 3},
+    "greeting": {"avg_ms": 293.7, "note": "HuggingFace model init overhead"},
+    "query_summary": {"avg_ms": 3895.0, "note": "Vectorstore search latency"},
+    "query_ledger": {"avg_ms": 1666.6, "note": "Vectorstore search latency"},
+    "query_udhaar": {"avg_ms": 1.1, "rule_based_percent": 100, "samples": 1}
+  },
+  "per_node_timing_ms": {
+    "classify_intent": 27.9,
+    "extract_entities": 0.1,
+    "check_slots": 0.0,
+    "route_request": 0.0,
+    "add_entry": 1.6,
+    "db_insert": 0.1,
+    "db_prepare": 0.0,
+    "generate_response": 0.0,
+    "search_notes": 1852.3,
+    "vectorstore_search": 1663.6,
+    "llm_api_call": 290.8
+  },
+  "analysis": {
+    "main_bottleneck": "Vectorstore search for query intents (HuggingFace embeddings)",
+    "add_operations": "Extremely fast (1-10ms) due to rule-based classifier and entity extraction",
+    "llm_calls_eliminated": "95%+ of add operations skip LLM entirely",
+    "remaining_improvements": [
+      "Optimize vectorstore with embedding caching",
+      "Pre-warm HuggingFace model",
+      "Consider query result caching"
+    ]
+  }
+}

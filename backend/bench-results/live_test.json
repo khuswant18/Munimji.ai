@@ -1,0 +1,101 @@
+{
+  "timestamp": "2025-11-27T14:19:35.678254",
+  "total_messages": 5,
+  "iterations_per_message": 3,
+  "total_runs": 15,
+  "statistics": {
+    "median_ms": 1.7735000001266599,
+    "mean_ms": 2.7356915292330086,
+    "p95_ms": 9.184166992781684,
+    "min_ms": 1.1689160019159317,
+    "max_ms": 9.184166992781684,
+    "stdev_ms": 2.246608046477448
+  },
+  "results": [
+    {
+      "message": "Fuel 200",
+      "total_time_ms": 5.815499986056238,
+      "intent": "add_expense",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: Mapper 'Mapper[User(users)]' has no property 'customers'.  If this prop",
+      "node_timings_ms": {
+        "classify_intent": 0.11795799946412444,
+        "extract_entities": 0.986999977612868,
+        "check_slots": 0.0010840012691915035,
+        "route_request": 0.0007080088835209608,
+        "db_prepare": 0.005916983354836702,
+        "db_insert": 0.4778329748660326,
+        "add_entry": 2.7162910264451057,
+        "generate_response": 0.0011659867595881224
+      }
+    },
+    {
+      "message": "Petrol bharwaya 500",
+      "total_time_ms": 1.9279999833088368,
+      "intent": "add_expense",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.004375004209578037,
+        "extract_entities": 0.03774999640882015,
+        "check_slots": 0.0007920025382190943,
+        "route_request": 0.0004580069798976183,
+        "db_prepare": 0.0017090060282498598,
+        "db_insert": 0.016125006368383765,
+        "add_entry": 0.7101669907569885,
+        "generate_response": 0.0006250047590583563
+      }
+    },
+    {
+      "message": "Rent paid 5000",
+      "total_time_ms": 2.108165994286537,
+      "intent": "add_expense",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.0034590193536132574,
+        "extract_entities": 0.036541983718052506,
+        "check_slots": 0.0008329807315021753,
+        "route_request": 0.00045899651013314724,
+        "db_prepare": 0.0017910206224769354,
+        "db_insert": 0.015291996533051133,
+        "add_entry": 0.5205839988775551,
+        "generate_response": 0.0005829788278788328
+      }
+    },
+    {
+      "message": "Electricity bill 1200",
+      "total_time_ms": 1.7735000001266599,
+      "intent": "add_expense",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.003249995643272996,
+        "extract_entities": 0.03820800338871777,
+        "check_slots": 0.0007089984137564898,
+        "route_request": 0.0004580069798976183,
+        "db_prepare": 0.0017499842215329409,
+        "db_insert": 0.014167017070576549,
+        "add_entry": 0.5125829775352031,
+        "generate_response": 0.0004999747034162283
+      }
+    },
+    {
+      "message": "Sold 10 packets chips to Ramesh for 200",
+      "total_time_ms": 1.602458010893315,
+      "intent": "add_sale",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.24191700504161417,
+        "extract_entities": 0.029207993065938354,
+        "check_slots": 0.000667001586407423,
+        "route_request": 0.00037500285543501377,
+        "db_prepare": 0.0018329883459955454,
+        "db_insert": 0.013542012311518192,
+        "add_entry": 0.6529169913846999,
+        "generate_response": 0.0004580069798976183
+      }
+    }
+  ]
+}
