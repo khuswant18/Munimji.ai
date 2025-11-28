@@ -1,0 +1,367 @@
+{
+  "timestamp": "2025-11-27T14:20:21.472099",
+  "total_messages": 21,
+  "iterations_per_message": 2,
+  "total_runs": 42,
+  "statistics": {
+    "median_ms": 2.1515630069188774,
+    "mean_ms": 185.01806347367597,
+    "p95_ms": 1605.4895410867175,
+    "min_ms": 0.6774170033168048,
+    "max_ms": 3894.989207998151,
+    "stdev_ms": 669.3232506307644
+  },
+  "results": [
+    {
+      "message": "Fuel 200",
+      "total_time_ms": 6.213999993633479,
+      "intent": "add_expense",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: Mapper 'Mapper[User(users)]' has no property 'customers'.  If this prop",
+      "node_timings_ms": {
+        "classify_intent": 0.17491698963567615,
+        "extract_entities": 1.0599999804981053,
+        "check_slots": 0.0010830117389559746,
+        "route_request": 0.0006250047590583563,
+        "db_prepare": 0.0024999899324029684,
+        "db_insert": 1.008042017929256,
+        "add_entry": 2.388833003351465,
+        "generate_response": 0.001334003172814846
+      }
+    },
+    {
+      "message": "Petrol bharwaya 500",
+      "total_time_ms": 1.1560839775484055,
+      "intent": "add_expense",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.003667024429887533,
+        "extract_entities": 0.04166699363850057,
+        "check_slots": 0.0008329807315021753,
+        "route_request": 0.0005829788278788328,
+        "db_prepare": 0.0020830193534493446,
+        "db_insert": 0.017790996935218573,
+        "add_entry": 0.3697499923873693,
+        "generate_response": 0.0007920025382190943
+      }
+    },
+    {
+      "message": "Rent paid 5000",
+      "total_time_ms": 1.1779159831348807,
+      "intent": "add_expense",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.002834014594554901,
+        "extract_entities": 0.037250021705403924,
+        "check_slots": 0.0006669724825769663,
+        "route_request": 0.0004580069798976183,
+        "db_prepare": 0.0015830155462026596,
+        "db_insert": 0.015208992408588529,
+        "add_entry": 0.41500001680105925,
+        "generate_response": 0.0007080088835209608
+      }
+    },
+    {
+      "message": "Electricity bill 1200",
+      "total_time_ms": 2.856625011190772,
+      "intent": "add_expense",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.0031659728847444057,
+        "extract_entities": 0.04070898285135627,
+        "check_slots": 0.0007500057108700275,
+        "route_request": 0.0004999747034162283,
+        "db_prepare": 0.001834006980061531,
+        "db_insert": 0.11054199421778321,
+        "add_entry": 1.5985000063665211,
+        "generate_response": 0.0007920025382190943
+      }
+    },
+    {
+      "message": "Sold 10 packets chips to Ramesh for 200",
+      "total_time_ms": 3.36958299158141,
+      "intent": "add_sale",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.252291007200256,
+        "extract_entities": 0.04070799332112074,
+        "check_slots": 0.0011250085663050413,
+        "route_request": 0.0008329807315021753,
+        "db_prepare": 0.002707995008677244,
+        "db_insert": 0.022458989406004548,
+        "add_entry": 2.209791011409834,
+        "generate_response": 0.0007920025382190943
+      }
+    },
+    {
+      "message": "Becha 5 kg rice 300 rupees",
+      "total_time_ms": 1.458290993468836,
+      "intent": "add_sale",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.012625008821487427,
+        "extract_entities": 0.019915984012186527,
+        "check_slots": 0.0005839974619448185,
+        "route_request": 0.000500003807246685,
+        "db_prepare": 0.0019579892978072166,
+        "db_insert": 0.017499987734481692,
+        "add_entry": 0.33950002398341894,
+        "generate_response": 0.0007080088835209608
+      }
+    },
+    {
+      "message": "Invoice to Mohan 1500",
+      "total_time_ms": 1.3793340185657144,
+      "intent": "add_sale",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.007374997949227691,
+        "extract_entities": 0.04650000482797623,
+        "check_slots": 0.0008749775588512421,
+        "route_request": 0.0005829788278788328,
+        "db_prepare": 0.0020840088836848736,
+        "db_insert": 0.02187499194405973,
+        "add_entry": 0.5653330008499324,
+        "generate_response": 0.0007079797796905041
+      }
+    },
+    {
+      "message": "Bought stock 2000 from wholesale",
+      "total_time_ms": 15.922625025268644,
+      "intent": "add_purchase",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.19308400806039572,
+        "extract_entities": 0.20245800260454416,
+        "check_slots": 0.0012920063454657793,
+        "route_request": 0.0037080026231706142,
+        "db_prepare": 0.004999979864805937,
+        "db_insert": 0.5325830134097487,
+        "add_entry": 2.5148749991785735,
+        "generate_response": 0.019083003280684352
+      }
+    },
+    {
+      "message": "Kharida 50 packets biscuit 500",
+      "total_time_ms": 6.960208003874868,
+      "intent": "add_purchase",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.012958014849573374,
+        "extract_entities": 0.0610839924775064,
+        "check_slots": 0.0017500133253633976,
+        "route_request": 0.0007500057108700275,
+        "db_prepare": 0.002708984538912773,
+        "db_insert": 0.047874986194074154,
+        "add_entry": 1.930291997268796,
+        "generate_response": 0.0015420082490891218
+      }
+    },
+    {
+      "message": "Purchase 10 kg dal 800",
+      "total_time_ms": 4.010292002931237,
+      "intent": "add_purchase",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.006708985893055797,
+        "extract_entities": 0.018333987100049853,
+        "check_slots": 0.0007089984137564898,
+        "route_request": 0.0004169996827840805,
+        "db_prepare": 0.0018750142771750689,
+        "db_insert": 0.021417014067992568,
+        "add_entry": 1.009583007544279,
+        "generate_response": 0.0008750066626816988
+      }
+    },
+    {
+      "message": "Aman ko udhaar 500 diya",
+      "total_time_ms": 2.319541003089398,
+      "intent": "add_udhaar",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.4195829969830811,
+        "extract_entities": 0.051624985644593835,
+        "check_slots": 0.0011669762898236513,
+        "route_request": 0.0005420006345957518,
+        "db_prepare": 0.002416985807940364,
+        "db_insert": 0.025542016373947263,
+        "add_entry": 0.8967079920694232,
+        "generate_response": 0.0008750066626816988
+      }
+    },
+    {
+      "message": "Ramesh se udhaar liya 1000",
+      "total_time_ms": 1.056124980095774,
+      "intent": "add_udhaar",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.009458017302677035,
+        "extract_entities": 0.041916995542123914,
+        "check_slots": 0.0009160139597952366,
+        "route_request": 0.000500003807246685,
+        "db_prepare": 0.0018750142771750689,
+        "db_insert": 0.017416983610019088,
+        "add_entry": 0.3687499847728759,
+        "generate_response": 0.0006660120561718941
+      }
+    },
+    {
+      "message": "Customer Suresh udhar 300",
+      "total_time_ms": 1.8722500244621187,
+      "intent": "add_udhaar",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.014541001291945577,
+        "extract_entities": 0.047707988414913416,
+        "check_slots": 0.0009999785106629133,
+        "route_request": 0.0007910130079835653,
+        "db_prepare": 0.0022919848561286926,
+        "db_insert": 0.028250011382624507,
+        "add_entry": 0.8052499906625599,
+        "generate_response": 0.0005420006345957518
+      }
+    },
+    {
+      "message": "Received 500 from Ramesh",
+      "total_time_ms": 9.958249982446432,
+      "intent": "add_payment",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.20233399118296802,
+        "extract_entities": 0.046874978579580784,
+        "check_slots": 0.0009170034900307655,
+        "route_request": 0.0005420006345957518,
+        "db_prepare": 0.002207991201430559,
+        "db_insert": 0.01795799471437931,
+        "add_entry": 7.61495900223963,
+        "generate_response": 0.0012909877113997936
+      }
+    },
+    {
+      "message": "Paid back 200 to supplier",
+      "total_time_ms": 2.5602909736335278,
+      "intent": "add_payment",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.02112501533702016,
+        "extract_entities": 0.05566701292991638,
+        "check_slots": 0.0011249794624745846,
+        "route_request": 0.0007500057108700275,
+        "db_prepare": 0.0023329921532422304,
+        "db_insert": 0.027875008527189493,
+        "add_entry": 1.1519170075189322,
+        "generate_response": 0.000833999365568161
+      }
+    },
+    {
+      "message": "Payment received from Mohan 1000",
+      "total_time_ms": 1.8678749911487103,
+      "intent": "add_payment",
+      "intent_reason": "rule-based",
+      "response": "Sorry, something went wrong: One or more mappers failed to initialize - can't proceed with initializ",
+      "node_timings_ms": {
+        "classify_intent": 0.012500007869675756,
+        "extract_entities": 0.04445799277164042,
+        "check_slots": 0.0009579816833138466,
+        "route_request": 0.0007500057108700275,
+        "db_prepare": 0.0023329921532422304,
+        "db_insert": 0.023957982193678617,
+        "add_entry": 0.7783749897498637,
+        "generate_response": 0.0007080088835209608
+      }
+    },
+    {
+      "message": "Show today's summary",
+      "total_time_ms": 3894.989207998151,
+      "intent": "query_summary",
+      "intent_reason": "rule-based",
+      "response": "Search error: One or more mappers failed to initialize - can't proceed with initialization of other ",
+      "node_timings_ms": {
+        "classify_intent": 0.18237499170936644,
+        "extract_entities": 0.037999998312443495,
+        "check_slots": 0.0007500057108700275,
+        "route_request": 0.0008749775588512421,
+        "db_query": 3892.9793749994133,
+        "search_notes": 3893.1227500142995,
+        "generate_response": 0.0038750004023313522
+      }
+    },
+    {
+      "message": "Show ledger",
+      "total_time_ms": 1666.5517909859773,
+      "intent": "query_ledger",
+      "intent_reason": "rule-based",
+      "response": "Kharida 50 packets biscuit 500; Kharida 50 packets biscuit 500; Sold 10 packets chips to Ramesh for ",
+      "node_timings_ms": {
+        "classify_intent": 0.036582991015166044,
+        "extract_entities": 0.07399998139590025,
+        "check_slots": 0.0016669800970703363,
+        "route_request": 0.0011250085663050413,
+        "vectorstore_search": 1663.6450000223704,
+        "db_query": 1663.6708750156686,
+        "search_notes": 1663.7473750161007,
+        "generate_response": 0.012667005648836493
+      }
+    },
+    {
+      "message": "Who owes me?",
+      "total_time_ms": 1.0796669812407345,
+      "intent": "query_udhaar",
+      "intent_reason": "rule-based",
+      "response": "\ud83d\udccb Udhaar list: Use 'udhaar [name]' for specific customer.",
+      "node_timings_ms": {
+        "classify_intent": 0.11937500676140189,
+        "extract_entities": 0.03766600275412202,
+        "check_slots": 0.0009580107871443033,
+        "route_request": 0.0008750066626816988,
+        "db_query": 0.0007499766070395708,
+        "search_notes": 0.07433397695422173,
+        "generate_response": 0.0011250085663050413
+      }
+    },
+    {
+      "message": "Hi",
+      "total_time_ms": 421.2978750001639,
+      "intent": "greeting",
+      "intent_reason": "common greeting",
+      "response": "Namaste! \ud83d\ude4f Main Munimji hoon, aapka business assistant. Kaise madad kar sakta hoon?",
+      "node_timings_ms": {
+        "llm_api_call": 417.9805410094559,
+        "classify_intent": 419.4859999988694,
+        "extract_entities": 0.09620800847187638,
+        "check_slots": 0.00200001522898674,
+        "route_request": 0.0015420082490891218,
+        "generate_response": 0.0072499969974160194
+      }
+    },
+    {
+      "message": "Namaste",
+      "total_time_ms": 166.1518330220133,
+      "intent": "greeting",
+      "intent_reason": "Traditional greeting in many cultures",
+      "response": "Namaste! \ud83d\ude4f Main Munimji hoon, aapka business assistant. Kaise madad kar sakta hoon?",
+      "node_timings_ms": {
+        "llm_api_call": 163.57375000370666,
+        "classify_intent": 163.77683301107027,
+        "extract_entities": 0.1102499954868108,
+        "check_slots": 0.002540997229516506,
+        "route_request": 0.002041022526100278,
+        "generate_response": 0.00300002284348011
+      }
+    }
+  ]
+}
