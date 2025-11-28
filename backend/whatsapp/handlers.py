@@ -3,9 +3,9 @@ from fastapi.responses import PlainTextResponse, JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from typing import Optional
-from .utils import send_text_message_async, verify_signature, mark_as_read
+from .utils import send_text_message_async, verify_signature, mark_as_read, send_interactive_buttons
 from .media import process_downloaded_image, process_downloaded_audio, process_downloaded_video, process_invoice_confirmation, get_pending_invoice
-from .chatbot import call_chatbot_and_respond
+from .chatbot import call_chatbot_and_respond, send_interactive_menu
 from backend.chatbot_backend.db.session import SessionLocal
 from backend.chatbot_backend.db.models import User, Conversation
 from langchain_postgres import PGVector
@@ -117,9 +117,44 @@ async def webhook_receiver(request: Request, background_tasks: BackgroundTasks, 
                             text = ""
                         
                         if text:
-                            conv = Conversation(user_id=user.id, last_message=text, context={"type": "interactive"})
-                            db.add(conv)
+                            # Update existing conversation or create new one
+                            conv = db.query(Conversation).filter(Conversation.user_id == user.id).first()
+                            if conv:
+                                conv.last_message = text
+                                # Preserve existing context, just add interaction type marker
+                                if isinstance(conv.context, dict):
+                                    conv.context["last_interaction_type"] = "interactive"
+                            else:
+                                conv = Conversation(user_id=user.id, last_message=text, context={"type": "interactive"})
+                                db.add(conv)
                             db.commit()
+                            
+                            # Handle invoice confirmation buttons
+                            if text in ["invoice_confirm", "confirm_yes"]:
+                                if get_pending_invoice(sender):
+                                    background_tasks.add_task(process_invoice_confirmation, sender, True)
+                                    continue
+                            elif text in ["invoice_cancel", "confirm_no"]:
+                                if get_pending_invoice(sender):
+                                    background_tasks.add_task(process_invoice_confirmation, sender, False)
+                                    continue
+                            elif text == "retry_image":
+                                await send_text_message_async(sender, "📷 Theek hai! Apni photo dobara bhejo.")
+                                continue
+                            
+                            # Handle category selection buttons
+                            category_mapping = {
+                                "cat_sale": "sale",
+                                "cat_purchase": "purchase", 
+                                "cat_expense": "expense",
+                                "cat_udhaar": "udhaar"
+                            }
+                            if text in category_mapping:
+                                # Map button ID to category and pass to chatbot
+                                category = category_mapping[text]
+                                background_tasks.add_task(call_chatbot_and_respond, sender, category, message_id)
+                                continue
+                            
                             background_tasks.add_task(call_chatbot_and_respond, sender, text, message_id)
                         continue
 
@@ -127,8 +162,16 @@ async def webhook_receiver(request: Request, background_tasks: BackgroundTasks, 
                         text = (message.get("text") or {}).get("body", "").strip()
                         text_lower = text.lower()
 
-                        conv = Conversation(user_id=user.id, last_message=text, context={"type": "text"})
-                        db.add(conv)
+                        # Update existing conversation instead of creating new (preserves context)
+                        conv = db.query(Conversation).filter(Conversation.user_id == user.id).first()
+                        if conv:
+                            conv.last_message = text
+                            # Preserve existing context, just add interaction type marker
+                            if isinstance(conv.context, dict):
+                                conv.context["last_interaction_type"] = "text"
+                        else:
+                            conv = Conversation(user_id=user.id, last_message=text, context={"type": "text"})
+                            db.add(conv)
                         db.commit()
 
                         # Check for pending invoice confirmation first
@@ -159,17 +202,19 @@ async def webhook_receiver(request: Request, background_tasks: BackgroundTasks, 
                         if user.state == "new" and text_lower == "hi":
                             user.state = "onboarding_name"
                             db.commit()
-                            await send_text_message_async(sender, "Welcome to MunimJi! What's your name?")
+                            await send_text_message_async(sender, "🙏 Welcome to MunimJi!\n\nAapka naam kya hai?")
                         elif user.state == "onboarding_name":
                             user.name = text.title()
                             user.state = "onboarding_shop"
                             db.commit()
-                            await send_text_message_async(sender, f"Nice to meet you, {user.name}! What's the name of your shop?")
+                            await send_text_message_async(sender, f"Namaste {user.name}! 🙏\n\nAapki dukaan ka naam kya hai?")
                         elif user.state == "onboarding_shop":
                             user.shop_name = text.title()
                             user.state = "menu"
                             db.commit()
-                            await send_text_message_async(sender, f"Great! Your shop '{user.shop_name}' is registered. How can I help you today?")
+                            # Send welcome with interactive menu
+                            welcome_msg = f"🎉 Shandar! '{user.shop_name}' register ho gayi!\n\n{user.name}, ab main aapka hisab-kitab rakh sakta hoon."
+                            await send_interactive_menu(sender, welcome_msg)
                         elif user.state == "menu":
                             background_tasks.add_task(call_chatbot_and_respond, sender, text, message_id)
                         else:

@@ -138,7 +138,7 @@ async def extract_invoice_data(file_path: str) -> dict:
 
 def format_invoice_for_display(invoice_data: dict) -> str:
     """
-    Format invoice data for display to user with confirmation prompt.
+    Format invoice data for display to user (without buttons - buttons sent separately).
     """
     if not invoice_data:
         return ""
@@ -168,10 +168,6 @@ def format_invoice_for_display(invoice_data: dict) -> str:
     
     if invoice_data.get("total_amount"):
         lines.append(f"\n💰 *Total Amount:* ₹{invoice_data['total_amount']}")
-    
-    lines.append("\n" + "─" * 20)
-    lines.append("✅ *Haan* - Add as purchase")
-    lines.append("❌ *Nahi* - Cancel")
     
     return "\n".join(lines)
 

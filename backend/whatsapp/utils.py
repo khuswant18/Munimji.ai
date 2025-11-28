@@ -215,6 +215,46 @@ async def send_interactive_buttons(to: str, body_text: str, buttons: list, heade
         return resp.json()
 
 
+async def send_confirmation_buttons(to: str, body_text: str, confirm_id: str = "confirm_yes", cancel_id: str = "confirm_no", header: str = None) -> dict:
+    """
+    Send Yes/No confirmation buttons.
+    
+    Args:
+        to: Recipient phone number
+        body_text: Main message body
+        confirm_id: ID for confirm button
+        cancel_id: ID for cancel button
+        header: Optional header text
+    """
+    buttons = [
+        {"id": confirm_id, "title": "✅ Haan"},
+        {"id": cancel_id, "title": "❌ Nahi"}
+    ]
+    return await send_interactive_buttons(to, body_text, buttons, header=header, footer="Tap karke choose karo")
+
+
+async def send_success_with_menu(to: str, success_text: str) -> dict:
+    """
+    Send success message with menu button options.
+    """
+    buttons = [
+        {"id": "menu_add_customer", "title": "➕ Aur Entry"},
+        {"id": "menu_show_ledger", "title": "📒 Ledger"},
+        {"id": "menu_request", "title": "📋 Menu"}
+    ]
+    return await send_interactive_buttons(to, success_text, buttons, footer="Aur kuch karna hai?")
+
+
+async def send_followup_options(to: str, question_text: str, options: list) -> dict:
+    """
+    Send follow-up question with quick reply options.
+    
+    Args:
+        options: List of dicts with 'id' and 'title'
+    """
+    return await send_interactive_buttons(to, question_text, options[:3], footer="Choose karo ya type karo")
+
+
 async def send_interactive_list(to: str, body_text: str, button_text: str, sections: list, header: str = None, footer: str = None) -> dict:
     """
     Send interactive list message (for more than 3 options).

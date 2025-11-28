@@ -428,7 +428,68 @@ def classify_intent(state: AgentState) -> AgentState:
         state["intent_reason"] = "no text"
         return state
 
-    # 0) GUARDRAILS CHECK FIRST - Safety and topic filtering
+    # 0) DIRECT BUTTON ID CHECK - Interactive button clicks come as their ID
+    # These are direct menu button IDs from WhatsApp interactive messages
+    direct_button_intents = [
+        "menu_add_customer", "menu_add_expense", "menu_show_ledger",
+        "menu_show_summary", "menu_udhaar_list", "menu_help", "menu_request"
+    ]
+    text_stripped = text.strip()
+    if text_stripped in direct_button_intents:
+        state["intent"] = text_stripped
+        state["intent_confidence"] = 1.0
+        state["intent_reason"] = "button_click"
+        # Set conversation mode for follow-up context
+        if text_stripped == "menu_add_customer":
+            state["context"] = state.get("context", {})
+            state["context"]["last_menu"] = "add_customer"
+        elif text_stripped == "menu_add_expense":
+            state["context"] = state.get("context", {})
+            state["context"]["last_menu"] = "add_expense"
+        return state
+
+    # 0.5) CHECK CONTEXT FROM PREVIOUS MENU SELECTION
+    # If user just selected a menu option and now types something short,
+    # interpret it based on the menu context
+    context = state.get("context", {})
+    last_menu = context.get("last_menu", "")
+    text_lower = text.lower().strip()
+    
+    if last_menu and len(text_stripped) < 50:
+        # User selected "add_customer" menu and now typed a name
+        if last_menu == "add_customer":
+            # Check if it looks like a name (not a number, not a command)
+            if not text_stripped.isdigit() and not any(kw in text_lower for kw in ["menu", "help", "ledger", "summary"]):
+                # Treat as customer name for udhaar
+                state["intent"] = "add_udhaar"
+                state["intent_confidence"] = 0.9
+                state["intent_reason"] = "context_menu_add_customer"
+                # Pre-populate customer name
+                state["entities"] = {"entries": [{"customer": text_stripped.title()}]}
+                # Clear the menu context
+                context["last_menu"] = ""
+                state["context"] = context
+                return state
+        
+        # User selected "add_expense" menu and now typed something
+        elif last_menu == "add_expense":
+            # Check if it's a number (amount)
+            amount_match = re.search(r'(\d+)', text_stripped)
+            if amount_match:
+                state["intent"] = "add_expense"
+                state["intent_confidence"] = 0.9
+                state["intent_reason"] = "context_menu_add_expense"
+                state["entities"] = {"entries": [{"amount": float(amount_match.group(1))}]}
+                context["last_menu"] = ""
+                state["context"] = context
+                return state
+
+    # Clear menu context if user types something else
+    if last_menu:
+        context["last_menu"] = ""
+        state["context"] = context
+
+    # 1) GUARDRAILS CHECK - Safety and topic filtering
     
     # Check for blocked content (inappropriate)
     is_blocked, block_reason = is_blocked_content(text)
@@ -449,7 +510,6 @@ def classify_intent(state: AgentState) -> AgentState:
         return state
     
     # Check for menu request
-    text_lower = text.lower().strip()
     if text_lower in ['menu', 'help', 'madad', 'options', 'kya kar sakta hai', 'what can you do']:
         state["intent"] = "menu_request"
         state["intent_confidence"] = 1.0
@@ -458,11 +518,13 @@ def classify_intent(state: AgentState) -> AgentState:
         return state
     
     # Check for casual chat indicators (short non-business messages)
+    # BUT only if it's clearly casual (greetings, thanks, etc.) - not just short text
     casual_patterns = [
-        r'^(kya|kaise|kaisa|kaisi|theek|thik|accha|acha|ok|okay|sahi|haan|nahi|nope|yes|no|ji)(\s|$|\?)',
+        r'^(hi|hello|hey|namaste|namaskar)(\s|$|\!)',
         r'^(thank|thanks|shukriya|dhanyavad)',
         r'^(bye|goodbye|alvida|tata|see you)',
         r'^(kya chal|kya haal|sab theek|how are)',
+        r'^(ok|okay|theek|accha)(\s+hai)?$',
     ]
     for pattern in casual_patterns:
         if re.match(pattern, text_lower):

@@ -14,12 +14,13 @@ from ...decorators.timeit import time_node
 from .guardrails import get_blocked_response, get_off_topic_response, get_main_menu
 
 # Template responses for successful operations (avoid LLM call)
+# Note: These are base messages - interactive buttons added by chatbot.py
 SUCCESS_TEMPLATES = {
-    "add_expense": "✅ Done! ₹{amount} expense add ho gaya. {description}",
-    "add_sale": "✅ Done! ₹{amount} ki sale record ho gayi. {description}",
-    "add_purchase": "✅ Done! ₹{amount} ka purchase add ho gaya. {description}",
+    "add_expense": "✅ Done! ₹{amount} expense add ho gaya.",
+    "add_sale": "✅ Done! ₹{amount} ki sale record ho gayi.",
+    "add_purchase": "✅ Done! ₹{amount} ka purchase add ho gaya.",
     "add_udhaar": "✅ Done! {customer} ke naam ₹{amount} udhaar likh diya.",
-    "add_payment": "✅ Done! ₹{amount} payment record ho gaya. {description}",
+    "add_payment": "✅ Done! ₹{amount} payment record ho gaya.",
     "add_entry": "✅ Added: {quantity} {item} @ ₹{price}",
     "add_inventory": "✅ Added: {quantity} {item} @ ₹{price}",
     "add_customer": "✅ {customer} add ho gaya! Ab unka hisab rakh sakte ho.",
@@ -41,6 +42,16 @@ FOLLOWUP_TEMPLATES = {
     "supplier": "🏪 Supplier ka naam batao.",
     "item": "📝 Kya item hai?",
     "name": "👤 Naam batao.",
+    "category": "📋 Kis type ka hai? (sale/purchase/expense/udhaar)",
+}
+
+# Follow-up options with buttons
+FOLLOWUP_BUTTON_OPTIONS = {
+    "category": [
+        {"id": "cat_sale", "title": "🛒 Sale"},
+        {"id": "cat_purchase", "title": "📦 Purchase"},
+        {"id": "cat_expense", "title": "💸 Expense"},
+    ],
 }
 
 # Casual chat responses
@@ -52,13 +63,10 @@ CASUAL_RESPONSES = {
     "default": "Ji bilkul! Aur kuch madad chahiye?",
 }
 
-# Menu option responses
+# Menu option responses - only for help/instruction menus, NOT data queries
 MENU_RESPONSES = {
     "menu_add_customer": "👤 *Naya Customer/Udhaar Add*\n\nSeedha type karo:\n• \"Ramesh ke 500 udhaar\"\n• \"Mohan ka 1000 baaki\"\n\nYa sirf naam batao, main amount baad mein puch lunga.",
     "menu_add_expense": "💸 *Expense Add*\n\nSeedha type karo:\n• \"100 ka petrol\"\n• \"500 bijli bill\"\n• \"200 chai nashta\"\n\nYa sirf amount batao.",
-    "menu_show_ledger": "📒 *Ledger Dikhao*\n\nAaj ki entries dekhne ke liye \"aaj ka ledger\" likho.\n\nSpecific customer ka hisab: \"Ramesh ka hisab dikhao\"",
-    "menu_show_summary": "📊 *Summary*\n\n\"Aaj ka summary\" ya \"is hafte ka summary\" likho.\n\nTotal sale, purchase, expense sab dikha dunga.",
-    "menu_udhaar_list": "📋 *Udhaar List*\n\n\"Udhaar list dikhao\" ya \"kaun kitna dena hai\" likho.\n\nSaare pending udhaar dikha dunga.",
     "menu_help": """❓ *Help - Kaise Use Kare*
 
 📝 *Entry Add Karna:*
@@ -96,10 +104,13 @@ def _format_template(template: str, entities: dict, context: dict) -> str:
         return template
 
 
-def _generate_followup_response(missing_slots: list, entities: dict = None) -> str:
-    """Generate follow-up question for missing slots with context."""
+def _generate_followup_response(missing_slots: list, entities: dict = None) -> tuple[str, list]:
+    """
+    Generate follow-up question for missing slots with context.
+    Returns (response_text, button_options) - button_options may be empty.
+    """
     if not missing_slots:
-        return ""
+        return "", []
     
     # Get first missing slot
     slot = missing_slots[0]
@@ -111,9 +122,14 @@ def _generate_followup_response(missing_slots: list, entities: dict = None) -> s
         item = entities["entries"][0].get("item", "item")
     
     try:
-        return template.format(item=item)
+        response = template.format(item=item)
     except:
-        return template
+        response = template
+    
+    # Check if we have button options for this slot
+    button_options = FOLLOWUP_BUTTON_OPTIONS.get(slot, [])
+    
+    return response, button_options
 
 
 @time_node
@@ -133,18 +149,44 @@ def generate_response(state: AgentState) -> AgentState:
         state["response"] = get_blocked_response()
         return state
     
-    # 1. Handle menu selection
-    if intent.startswith("menu_"):
-        response = MENU_RESPONSES.get(intent, get_main_menu())
+    # 1. PRIORITY: Handle query results with search data (menu_show_* and query_*)
+    # These intents route to search_notes which populates search_results
+    # Check this BEFORE checking menu_ prefix to avoid returning menu instead of data
+    if context.get("search_results"):
+        response = context["search_results"]
         state["response"] = response
         return state
     
-    # 2. Handle menu request
+    # 2. Handle menu selection (instruction menus only - menu_add_*, menu_help)
+    if intent.startswith("menu_"):
+        response = MENU_RESPONSES.get(intent)
+        if response:
+            state["response"] = response
+            # Save the menu action so next message knows context
+            # This helps classify.py understand if user is responding to instructions
+            if intent == "menu_add_customer":
+                context["last_menu"] = "add_customer"
+                state["context"] = context
+            elif intent == "menu_add_expense":
+                context["last_menu"] = "add_expense"
+                state["context"] = context
+            return state
+        # Menu query intents (menu_show_ledger, etc.) should have search_results
+        # If they don't, it means search failed - show error
+        if intent in ["menu_show_ledger", "menu_show_summary", "menu_udhaar_list"]:
+            state["response"] = "❌ Data nahi mila. Kuch entries add karo pehle!"
+            state["show_menu"] = True
+            return state
+        # Unknown menu intent - show main menu
+        state["response"] = get_main_menu()
+        return state
+    
+    # 3. Handle menu request
     if intent == "menu_request":
         state["response"] = get_main_menu()
         return state
     
-    # 2.5 Handle profile queries (name, shop, account info)
+    # 4. Handle profile queries (name, shop, account info)
     if intent == "query_profile":
         user_id = state.get("user_id")
         if user_id:
@@ -197,7 +239,7 @@ Kuch update karna hai toh batao!"""
         state["response"] = "🤔 Aapki profile abhi nahi mili. Pehle apna naam aur dukaan ka naam batao!"
         return state
     
-    # 3. Handle casual chat
+    # 5. Handle casual chat
     if intent == "casual_chat":
         messages = state.get("messages", [])
         last_message = ""
@@ -222,26 +264,31 @@ Kuch update karna hai toh batao!"""
         state["response"] = response
         return state
     
-    # 4. Handle follow-up needed (missing slots)
+    # 6. Handle follow-up needed (missing slots)
     if needs_followup and missing_slots:
-        response = _generate_followup_response(missing_slots, entities)
+        response, button_options = _generate_followup_response(missing_slots, entities)
         state["response"] = response
+        # Store button options for chatbot.py to send as interactive buttons
+        if button_options:
+            state["followup_buttons"] = button_options
         return state
     
-    # 5. Handle errors
+    # 7. Handle errors
     if context.get("error"):
-        state["response"] = f"❌ Oops! Kuch gadbad ho gayi: {context['error']}\n\nDubara try karo ya 'menu' likho."
+        state["response"] = f"❌ Oops! Kuch gadbad ho gayi: {context['error']}"
+        # Set flag to show menu buttons for retry
+        state["show_menu"] = True
         return state
     
-    # 6. Template response for successful operations
+    # 8. Template response for successful operations
     if context.get("added") and intent in SUCCESS_TEMPLATES:
         response = _format_template(SUCCESS_TEMPLATES[intent], entities, context)
-        # Add follow-up prompt after successful action
-        response += "\n\n✨ Aur kuch karna hai? 'menu' likho ya seedha next entry karo!"
+        # Set flag to show interactive menu buttons (handled by chatbot.py)
+        state["show_menu"] = True
         state["response"] = response
         return state
     
-    # 7. Template for greetings - show interactive menu
+    # 9. Template for greetings - show interactive menu
     if intent == "greeting":
         import random
         response = random.choice(GREETING_RESPONSES)
@@ -250,19 +297,14 @@ Kuch update karna hai toh batao!"""
         state["response"] = response
         return state
     
-    # 8. Simple response for queries with search results
-    if intent.startswith("query_") and context.get("search_results"):
-        response = context["search_results"]
-        response += "\n\n📌 Aur kuch dekhna hai? 'menu' likho."
-        state["response"] = response
-        return state
-    
-    # 9. Handle off-topic/unknown
+    # 10. Handle off-topic/unknown
     if intent in ["unknown", "off_topic"]:
         state["response"] = get_off_topic_response()
+        # Show menu buttons to guide user
+        state["show_menu"] = True
         return state
     
-    # 10. LLM fallback for complex cases
+    # 11. LLM fallback for complex cases
     messages = state.get("messages", [])
     last_message = ""
     if messages:

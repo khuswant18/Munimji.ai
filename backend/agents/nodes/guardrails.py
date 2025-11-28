@@ -145,9 +145,7 @@ def is_menu_selection(text: str) -> Tuple[bool, str]:
 
 def get_blocked_response() -> str:
     """Get standard response for blocked content."""
-    return """🚫 Main sirf dukaan ke kaam mein madad kar sakta hoon.
-
-Kuch aur business-related help chahiye? Menu ke liye 'menu' type karo."""
+    return """🚫 Main sirf dukaan ke kaam mein madad kar sakta hoon."""
 
 
 def get_off_topic_response() -> str:
@@ -156,12 +154,9 @@ def get_off_topic_response() -> str:
 
 Main aapki madad kar sakta hoon:
 • Hisab-kitab (ledger entries)
-• Udhaar manage karna
+• Udhaar manage karna  
 • Sale/purchase record
-• Expense tracking
-• Business summary
-
-'menu' type karo ya seedha apna kaam batao! 📝"""
+• Expense tracking"""
 
 
 MAIN_MENU = """📋 *Munimji Menu*

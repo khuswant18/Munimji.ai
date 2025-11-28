@@ -327,9 +327,12 @@ def extract_entities(state: AgentState) -> AgentState:
     intent = state["intent"]
     missing_slots = state.get("missing_slots", [])
 
-    # Handle follow-up extraction for missing slots
+    # Get existing entities (may have been pre-filled by classify.py from context)
     entities = state.get("entities") or {"entries": [{}]}
     entry = entities["entries"][0] if entities.get("entries") else {}
+    
+    # Save pre-filled entities before extraction (so we can merge later)
+    pre_filled_entry = dict(entry) if entry else {}
 
     if missing_slots:
         # Quick slot filling from follow-up message
@@ -372,7 +375,19 @@ def extract_entities(state: AgentState) -> AgentState:
     # Check if we have all required fields
     required = REQUIRED_FIELDS.get(intent, [])
     rule_entry = rule_entities["entries"][0] if rule_entities.get("entries") else {}
-    has_required = all(rule_entry.get(field) for field in required)
+    
+    # IMPORTANT: Merge pre-filled entities from classify.py with extracted entities
+    # Pre-filled values take precedence (don't overwrite context-aware classification)
+    merged_entry = dict(rule_entry)  # Start with extracted
+    for key, value in pre_filled_entry.items():
+        if value is not None and value != "":
+            merged_entry[key] = value  # Pre-filled overrides
+    
+    # Update rule_entry and rule_entities with merged data
+    rule_entry = merged_entry
+    rule_entities["entries"] = [merged_entry]
+    
+    has_required = all(merged_entry.get(field) for field in required)
     
     # If rule-based extraction is sufficient, skip LLM
     if has_required or confidence >= EXTRACTION_CONFIDENCE_THRESHOLD:
@@ -408,17 +423,23 @@ Return JSON: {{"entries": [{{...}}]}}"""
     
     try:
         llm_entities = json.loads(response)
-        # Merge rule-based with LLM results (rule-based takes precedence)
+        # Merge: pre-filled → rule-based → LLM (in priority order)
         if llm_entities.get("entries"):
             llm_entry = llm_entities["entries"][0]
+            # First, apply rule-based extractions
             for key, value in rule_entry.items():
                 if value is not None:
                     llm_entry[key] = value
+            # Then, apply pre-filled (highest priority - from context)
+            for key, value in pre_filled_entry.items():
+                if value is not None and value != "":
+                    llm_entry[key] = value
+            llm_entities["entries"][0] = llm_entry
             state["entities"] = llm_entities
         else:
             state["entities"] = rule_entities
     except:
-        # LLM parsing failed, use rule-based results
+        # LLM parsing failed, use rule-based results (already merged with pre-filled)
         state["entities"] = rule_entities
 
     return state

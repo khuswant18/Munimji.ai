@@ -1,5 +1,5 @@
 from starlette.concurrency import run_in_threadpool
-from .utils import send_text_message_async, mark_as_read, send_interactive_list, send_typing_indicator, remove_typing_indicator
+from .utils import send_text_message_async, mark_as_read, send_interactive_list, send_typing_indicator, remove_typing_indicator, send_success_with_menu, send_interactive_buttons
 
 try:
     from backend.agents.graph import compiled_graph as chatbot
@@ -138,6 +138,7 @@ async def call_chatbot_and_respond(sender: str, user_text: str, message_id: str 
         ai_text = result.get("response", "")
         show_menu = result.get("show_menu", False)
         intent = result.get("intent", "")
+        followup_buttons = result.get("followup_buttons", [])
 
         if not ai_text:
             ai_text = "Sorry, I couldn't generate a reply."
@@ -177,14 +178,37 @@ async def call_chatbot_and_respond(sender: str, user_text: str, message_id: str 
         if message_id:
             await remove_typing_indicator(sender, message_id)
 
-        # Send response - use interactive menu for greeting/menu intents
-        if intent in ["greeting", "menu_request", "casual_chat"] or show_menu:
-            # Extract intro text (before the menu part)
+        # Send response - use interactive menu/buttons based on context
+        if followup_buttons:
+            # Send follow-up question with button options
+            try:
+                await send_interactive_buttons(sender, ai_text, followup_buttons, footer="Choose karo ya type karo")
+            except Exception as e:
+                print(f"Follow-up buttons failed, using text: {e}")
+                await send_text_message_async(sender, ai_text)
+        elif intent in ["greeting", "menu_request", "casual_chat", "unknown", "off_topic", "blocked"]:
+            # Interactive menu for greetings, menu requests, and error cases
             intro = ai_text.split("📋")[0].strip() if "📋" in ai_text else ai_text
             if intro and len(intro) > 10:
                 await send_interactive_menu(sender, intro)
             else:
                 await send_interactive_menu(sender)
+        elif intent in ["menu_show_ledger", "menu_show_summary", "menu_udhaar_list"]:
+            # Data query results from menu buttons - just send the data
+            await send_text_message_async(sender, ai_text)
+        elif intent in ["menu_add_customer", "menu_add_expense", "menu_help"]:
+            # Instruction menus - show text with menu option
+            await send_interactive_menu(sender, ai_text)
+        elif show_menu and intent.startswith("add_"):
+            # Success message with quick action buttons
+            try:
+                await send_success_with_menu(sender, ai_text)
+            except Exception as e:
+                print(f"Interactive buttons failed, using text: {e}")
+                await send_text_message_async(sender, ai_text + "\n\n📋 'menu' likho aur options ke liye!")
+        elif intent.startswith("query_"):
+            # Query results - just send the data
+            await send_text_message_async(sender, ai_text)
         else:
             await send_text_message_async(sender, ai_text)
 

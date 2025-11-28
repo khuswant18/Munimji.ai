@@ -1,4 +1,4 @@
-from .utils import send_text_message_async, download_media_to_disk
+from .utils import send_text_message_async, download_media_to_disk, send_confirmation_buttons, send_success_with_menu
 from .audio_processor import transcribe_audio
 from .image_processor import extract_image_data, extract_invoice_data, format_invoice_for_display, parse_extracted_to_command
 from .chatbot import call_chatbot_and_respond
@@ -61,9 +61,8 @@ async def process_invoice_confirmation(sender: str, confirmed: bool) -> bool:
         
         LOG.info(f"Adding purchase from invoice: {purchase_cmd}")
         
-        # Send confirmation
-        await send_text_message_async(
-            sender,
+        # Send success with interactive menu buttons
+        success_text = (
             f"✅ *Purchase Added!*\n\n"
             f"🏢 Supplier: {supplier}\n"
             f"💰 Amount: ₹{total}\n"
@@ -72,11 +71,31 @@ async def process_invoice_confirmation(sender: str, confirmed: bool) -> bool:
             f"Record saved successfully! 📝"
         )
         
+        try:
+            await send_success_with_menu(sender, success_text)
+        except Exception as e:
+            LOG.warning(f"Interactive buttons failed, using text: {e}")
+            await send_text_message_async(sender, success_text + "\n\n'menu' likho aur options ke liye.")
+        
         # Process through chatbot to actually save
         await call_chatbot_and_respond(sender, purchase_cmd)
         
     else:
-        await send_text_message_async(sender, "❌ Invoice cancelled. Photo dubara bhejo ya text mein likho.")
+        # Send cancel message with menu options
+        try:
+            from .utils import send_interactive_buttons
+            buttons = [
+                {"id": "menu_request", "title": "📋 Menu"},
+                {"id": "retry_image", "title": "📷 Retry Photo"}
+            ]
+            await send_interactive_buttons(
+                sender,
+                "❌ Invoice cancelled.\n\nDubara photo bhejo ya menu se option choose karo.",
+                buttons
+            )
+        except Exception as e:
+            LOG.warning(f"Interactive buttons failed: {e}")
+            await send_text_message_async(sender, "❌ Invoice cancelled. Photo dubara bhejo ya 'menu' likho.")
     
     return True
 
@@ -94,11 +113,23 @@ async def process_image_and_respond(sender: str, file_path: str):
         invoice_data = await extract_invoice_data(file_path)
         
         if invoice_data and invoice_data.get("total_amount"):
-            # This looks like an invoice - show details and ask for confirmation
+            # This looks like an invoice - show details and ask for confirmation with buttons
             display_text = format_invoice_for_display(invoice_data)
             
             if display_text:
-                await send_text_message_async(sender, display_text)
+                # Send invoice details with confirmation buttons
+                try:
+                    await send_confirmation_buttons(
+                        sender,
+                        display_text,
+                        confirm_id="invoice_confirm",
+                        cancel_id="invoice_cancel",
+                        header="📋 Invoice Detected!"
+                    )
+                except Exception as e:
+                    LOG.warning(f"Confirmation buttons failed, using text: {e}")
+                    await send_text_message_async(sender, display_text + "\n\n✅ 'haan' - Add | ❌ 'nahi' - Cancel")
+                
                 store_pending_invoice(sender, invoice_data)
                 return
         
