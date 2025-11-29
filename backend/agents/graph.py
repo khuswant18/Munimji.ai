@@ -36,7 +36,6 @@ def route_after_slot_check(state: AgentState) -> str:
 
 graph = StateGraph(AgentState)
 
-# Add all nodes
 graph.add_node("classify", classify_intent)
 graph.add_node("extract", extract_entities)
 graph.add_node("slot_check", check_slots)
@@ -46,7 +45,6 @@ graph.add_node("add_entry", add_entry)
 graph.add_node("search_notes", search_notes)
 graph.add_node("respond", generate_response)
 
-# Conditional edge from START - check if follow-up or new request
 graph.add_conditional_edges(
     START,
     route_from_start,
@@ -56,24 +54,20 @@ graph.add_conditional_edges(
     }
 )
 
-# Normal flow: classify → extract → slot_check
 graph.add_edge("classify", "extract")
 graph.add_edge("extract", "slot_check")
 
-# After slot_check: either ask for missing slots or proceed
 graph.add_conditional_edges(
     "slot_check",
     route_after_slot_check,
     {
-        "respond": "respond",  # Ask for missing slots
-        "router": "router",     # Proceed to action
+        "respond": "respond",
+        "router": "router",
     }
 )
 
-# slot_fill → slot_check (re-check if all slots filled)
 graph.add_edge("slot_fill", "slot_check")
 
-# Router conditional edges
 graph.add_conditional_edges( 
     "router",
     lambda state: state["route"],
@@ -84,7 +78,6 @@ graph.add_conditional_edges(
     }
 )
 
-# Action nodes → respond
 graph.add_edge("add_entry", "respond")
 graph.add_edge("search_notes", "respond")
 graph.add_edge("respond", END)

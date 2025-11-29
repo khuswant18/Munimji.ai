@@ -1,5 +1,4 @@
-#installed DocStrange + Local LLM Support ->>>>> pip install 'docstrange[local-llm]' -->>>Python client for Ollama
-from docstrange import DocumentExtractor #PDF processing + OCR + layout detection
+from docstrange import DocumentExtractor
 import json
 import sys
 

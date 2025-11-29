@@ -5,8 +5,8 @@ load_dotenv()
 
 client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
 call = client.calls.create(
-    to="+918108561145",  # Your phone number (international OK)
+    to="+918108561145",  
     from_="+18783029488",
-    url="https://your-ngrok-url.ngrok-free.app/voice"  # Replace with your ngrok URL
+    url="https://your-ngrok-url.ngrok-free.app/voice"
 )
 print(f"Call SID: {call.sid}")
