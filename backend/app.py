@@ -67,3 +67,13 @@ async def chat(request: ChatRequest):
         return {"response": result["response"]}
     finally:
         db.close()
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "backend.whatsapp.app:app",
+        host="0.0.0.0",
+        port=5000,
+        reload=True,
+    )
