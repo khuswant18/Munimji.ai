@@ -45,7 +45,7 @@ const About: React.FC = () => {
 
         <p className="text-sm text-gray-500">
           Munimji is not a bank and does not offer loans or financial products. 
-          It simply keeps your business records accurate, simple, and stress-free.
+          It simply keeps your business records accurate, simple, and stress-free without any Hustle.
         </p>
       </div>
     </div>
