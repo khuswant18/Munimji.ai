@@ -1,7 +1,13 @@
 // Frontend/utils/api.ts
 import { getAuthToken } from './auth';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Use environment variable or default to localhost for development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8002';
+
+// Log API URL in development
+if (import.meta.env.DEV) {
+  console.log('🔗 API Base URL:', API_BASE_URL);
+}
 
 interface ApiResponse<T> {
   data?: T;
