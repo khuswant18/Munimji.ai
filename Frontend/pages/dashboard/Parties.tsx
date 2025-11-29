@@ -4,7 +4,7 @@ import { Phone, MessageCircle, Search, FileText } from 'lucide-react';
 import { MOCK_TRANSACTIONS } from '../../utils/constants';
 import LedgerTable from '../../components/LedgerTable';
 
-interface PartiesProps {
+interface PartiesProps { 
   type: 'CUSTOMER' | 'SUPPLIER';
   data: Party[];
 }
