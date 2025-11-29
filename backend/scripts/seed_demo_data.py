@@ -15,7 +15,7 @@ load_dotenv()
 
 from backend.chatbot_backend.db.session import get_db, engine, Base
 from backend.chatbot_backend.db.models import User, Conversation
-from backend.dashbaord.models import LedgerEntry, Customer, Supplier
+from backend.dashboard.models import LedgerEntry, Customer, Supplier
 
 
 def seed_demo_data():

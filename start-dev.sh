@@ -40,7 +40,7 @@ echo ""
 
 # Start backend in background
 cd backend
-uvicorn backend.dashbaord.app:app --reload --host 0.0.0.0 --port 8001 &
+uvicorn backend.dashboard.app:app --reload --host 0.0.0.0 --port 8001 &
 BACKEND_PID=$!
 cd ..
 

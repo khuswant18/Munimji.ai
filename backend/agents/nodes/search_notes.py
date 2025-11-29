@@ -111,7 +111,7 @@ def search_notes(state: AgentState) -> AgentState:
             elif intent == "query_ledger" or intent == "menu_show_ledger":
                 # Get today's entries
                 from sqlalchemy import func
-                from ...dashbaord.models import LedgerEntry
+                from ...dashboard.models import LedgerEntry
                 
                 today = func.current_date()
                 entries = db.query(LedgerEntry).filter(

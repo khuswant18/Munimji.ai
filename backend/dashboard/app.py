@@ -47,4 +47,4 @@ def health_check():
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("DASHBOARD_PORT", 8001))
-    uvicorn.run("backend.dashbaord.app:app", host="0.0.0.0", port=port, reload=True)
+    uvicorn.run("backend.dashboard.app:app", host="0.0.0.0", port=port, reload=True)

@@ -41,6 +41,6 @@ class Memory(Base):
 
 # Import dashboard models for Alembic detection 
 try:
-    from ...dashbaord.models import LedgerEntry, Customer, Supplier
+    from ...dashboard.models import LedgerEntry, Customer, Supplier
 except ImportError:
     pass

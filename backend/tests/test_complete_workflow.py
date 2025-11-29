@@ -31,7 +31,7 @@ from backend.agents.graph import compiled_graph
 from backend.agents.state import AgentState
 from backend.chatbot_backend.db.session import get_db_session
 from backend.chatbot_backend.db.models import User, Conversation
-from backend.dashbaord.models import Customer, Supplier, LedgerEntry
+from backend.dashboard.models import Customer, Supplier, LedgerEntry
 
 
 # Test phone number for this session

@@ -6,4 +6,4 @@ source backend/.venv/bin/activate
 export $(cat backend/.env | grep -v '^#' | xargs)
 
 # Start uvicorn
-uvicorn backend.dashbaord.app:app --host 0.0.0.0 --port 8002 --reload
+uvicorn backend.dashboard.app:app --host 0.0.0.0 --port 8002 --reload
