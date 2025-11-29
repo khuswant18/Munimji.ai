@@ -42,6 +42,38 @@ We understand—this isn't just about numbers; it's about the peace of mind you 
 
 Munimji.ai is like having a dedicated munim (accountant) right in your WhatsApp. No more notebooks, no more errors, no more late nights. Just send messages as you normally would, and let our AI do the rest.
 
+🎥 NEW: Video Inventory Detection (WhatsApp Video → Grocery Item Count)
+
+Munimji now includes a video-based inventory detection engine powered by YOLOv8 + OpenCV.
+Shopkeepers can simply send a video of their shop shelf on WhatsApp, and Munimji will automatically detect and count the items.
+
+🛍 Perfect for:
+
+Kirana stores
+FMCG shelves
+Stock checking
+Inventory management
+
+✔ What It Can Detect
+
+Chips
+Biscuits
+Milk packets
+Soft drinks
+Noodles / Maggi
+Grocery / FMCG packets
+Any custom item trained in your YOLO model
+
+🔧 How It Works (Technical Flow)
+WhatsApp Video → FastAPI → Frame Extraction → YOLOv8 → Object Tracking → JSON Output → WhatsApp Reply
+
+
+1️⃣ User sends a video on WhatsApp
+2️⃣ Frames extracted using OpenCV
+3️⃣ YOLOv8 model performs object detection
+4️⃣ Tracking removes duplicates across frames
+5️⃣ Clean JSON response returned back to WhatsApp
+
 ### How It Works
 1. **Send on WhatsApp**: Type "Sold 5 kg rice to Ramu for ₹250" or send a photo of a bill.
 2. **AI Logs Automatically**: Munimji reads, understands, and records everything instantly.
