@@ -8,7 +8,7 @@ app = FastAPI(
     title="Munimji Dashboard API",
     description="API for shopkeeper dashboard with Twilio OTP authentication",
     version="1.0.0"
-)
+) 
 
 # CORS Configuration - allows frontend to make requests
 origins = [
@@ -22,7 +22,7 @@ origins = [
     "http://127.0.0.1:5174",
     "https://munimji-ai.vercel.app",  # Production frontend
     "https://*.vercel.app",  # Vercel preview deployments
-]
+] 
 
 # Add production domain if FRONTEND_URL is set
 frontend_url = os.getenv("FRONTEND_URL")

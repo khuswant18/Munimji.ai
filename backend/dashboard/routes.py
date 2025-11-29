@@ -10,8 +10,8 @@ from sqlalchemy import func
 import logging
 
 # reuse your existing DB session and models
-from ..chatbot_backend.db.session import get_db
-from ..chatbot_backend.db.models import User
+from chatbot_backend.db.session import get_db
+from chatbot_backend.db.models import User
 from .models import LedgerEntry, Customer, Supplier
 
 LOG = logging.getLogger(__name__)
