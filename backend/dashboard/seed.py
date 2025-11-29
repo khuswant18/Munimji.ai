@@ -1,6 +1,6 @@
 # backend/dashboard/seed.py
-from chatbot_backend.db.session import SessionLocal
-from chatbot_backend.db.models import User
+from backend.chatbot_backend.db.session import SessionLocal
+from backend.chatbot_backend.db.models import User
 from .models import LedgerEntry, Customer, Supplier
 
 def seed_data():

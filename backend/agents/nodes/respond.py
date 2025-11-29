@@ -8,9 +8,9 @@ Optimizations:
 - Interactive menu support
 """
 from ..state import AgentState
-from llm.groq_client import groq_chat
-from llm.prompts import RESPONSE_PROMPT
-from decorators.timeit import time_node
+from backend.llm.groq_client import groq_chat
+from backend.llm.prompts import RESPONSE_PROMPT
+from backend.decorators.timeit import time_node
 from .guardrails import get_blocked_response, get_off_topic_response, get_main_menu
 
 # Template responses for successful operations (avoid LLM call)
@@ -191,8 +191,8 @@ def generate_response(state: AgentState) -> AgentState:
         user_id = state.get("user_id")
         if user_id:
             try:
-                from chatbot_backend.db.session import get_db
-                from chatbot_backend.db.models import User
+                from backend.chatbot_backend.db.session import get_db
+                from backend.chatbot_backend.db.models import User
                 db = next(get_db())
                 try:
                     user = db.query(User).filter(User.id == user_id).first()

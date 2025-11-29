@@ -1,5 +1,5 @@
 from ..state import AgentState
-from decorators.timeit import time_node
+from backend.decorators.timeit import time_node
 
 @time_node
 def route_request(state: AgentState) -> AgentState:

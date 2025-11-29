@@ -12,7 +12,7 @@ from .llm_cache import (
     set_cached_response_with_redis,
     get_cache_stats,
 )
-from decorators.timeit import timed_context
+from backend.decorators.timeit import timed_context
 
 load_dotenv()
 

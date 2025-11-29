@@ -14,7 +14,7 @@ Flow:
 import re
 from typing import Optional
 from ..state import AgentState
-from decorators.timeit import time_node
+from backend.decorators.timeit import time_node
 
 
 # Patterns for extracting slot values from follow-up responses

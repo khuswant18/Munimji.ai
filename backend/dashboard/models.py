@@ -2,7 +2,7 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Float, ForeignKey, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from chatbot_backend.db.session import Base  # adjust import to your project
+from backend.chatbot_backend.db.session import Base  # adjust import to your project
 
 class Customer(Base):
     __tablename__ = "customers"
