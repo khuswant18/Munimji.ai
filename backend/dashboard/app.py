@@ -1,6 +1,6 @@
 # backend/dashboard/app.py
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from .routes import router
 
@@ -42,6 +42,31 @@ app.include_router(router)
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "munimji-dashboard"}
+
+
+# WhatsApp Webhook Verification (Meta requires this)
+VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN", "my_verify_token")
+
+@app.get("/webhook")
+def verify_webhook(
+    hub_mode: str = Query(None, alias="hub.mode"),
+    hub_challenge: str = Query(None, alias="hub.challenge"),
+    hub_verify_token: str = Query(None, alias="hub.verify_token")
+):
+    """WhatsApp webhook verification endpoint"""
+    if hub_mode == "subscribe" and hub_verify_token == VERIFY_TOKEN:
+        return int(hub_challenge)
+    return {"error": "Verification failed"}, 403
+
+
+@app.post("/webhook")
+async def webhook_handler(request: Request):
+    """Handle incoming WhatsApp messages"""
+    # For now, just acknowledge receipt
+    # Full WhatsApp handling can be added later
+    body = await request.json()
+    print(f"📩 Webhook received: {body}")
+    return {"status": "received"}
 
 
 if __name__ == "__main__":
