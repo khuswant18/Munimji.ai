@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="Munimji WhatsApp Adapter")
 
-# Webhook endpoints
+
 @app.get("/webhook")
 async def verify_webhook(
     hub_mode: str = Query(None, alias="hub.mode"),

@@ -16,20 +16,11 @@ from ..decorators.timeit import timed_context
 
 load_dotenv()
 
-# Initialize Groq client lazily
-client = None
-
-def get_groq_client():
-    global client
-    if client is None:
-        api_key = os.getenv("GROQ_API_KEY")
-        if not api_key:
-            raise ValueError("GROQ_API_KEY environment variable is not set")
-        client = Groq(
-            api_key=api_key,
-            timeout=float(os.getenv("GROQ_TIMEOUT", "10.0")),  # 10 second default timeout
-        )
-    return client
+# Initialize Groq client with timeout
+client = Groq(
+    api_key=os.getenv("GROQ_API_KEY"),
+    timeout=float(os.getenv("GROQ_TIMEOUT", "10.0")),  # 10 second default timeout
+)
 
 # Default model - can be overridden via env
 DEFAULT_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
@@ -71,7 +62,7 @@ def groq_chat(
     # Make API call with timing
     with timed_context("llm_api_call"):
         try:
-            res = get_groq_client().chat.completions.create(
+            res = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=temperature,
