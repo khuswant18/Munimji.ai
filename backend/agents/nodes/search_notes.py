@@ -2,10 +2,10 @@
 Optimized search_notes node with caching and efficient queries.
 """
 from ..state import AgentState
-from ...vectorstore.search import search_vectorstore
-from ...chatbot_backend.db.session import get_db
-from ...chatbot_backend.db.queries import get_daily_summary, get_detailed_daily_summary, get_all_udhaar_list, get_inventory_stock
-from ...decorators.timeit import time_node, timed_context
+from vectorstore.search import search_vectorstore
+from chatbot_backend.db.session import get_db
+from chatbot_backend.db.queries import get_daily_summary, get_detailed_daily_summary, get_all_udhaar_list, get_inventory_stock
+from decorators.timeit import time_node, timed_context
 
 
 def format_detailed_summary(summary: dict) -> str:
@@ -111,7 +111,7 @@ def search_notes(state: AgentState) -> AgentState:
             elif intent == "query_ledger" or intent == "menu_show_ledger":
                 # Get today's entries
                 from sqlalchemy import func
-                from ...dashboard.models import LedgerEntry
+                from dashboard.models import LedgerEntry
                 
                 today = func.current_date()
                 entries = db.query(LedgerEntry).filter(

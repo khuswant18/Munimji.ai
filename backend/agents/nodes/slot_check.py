@@ -1,5 +1,5 @@
 from ..state import AgentState
-from ...decorators.timeit import time_node
+from decorators.timeit import time_node
 
 REQUIRED_SLOTS = {
     "add_entry": ["item", "quantity", "price"],

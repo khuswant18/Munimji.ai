@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from backend.chatbot_backend.db.models import Conversation
+from .models import Conversation
 from sqlalchemy import text
-from ...dashboard.models import LedgerEntry, Customer
+from dashboard.models import LedgerEntry, Customer
 
 def get_conversations_by_type(db: Session, user_id: int, message_type: str):
     """Get conversations filtered by context type using JSONB operator."""
