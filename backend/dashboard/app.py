@@ -1,12 +1,17 @@
 # backend/dashboard/app.py
 import os
-from fastapi import FastAPI, Query, Request
+import logging
+from fastapi import FastAPI, Query, Request, BackgroundTasks, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse, JSONResponse
 from .routes import router
+
+LOG = logging.getLogger("munimji.dashboard")
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(
     title="Munimji Dashboard API",
-    description="API for shopkeeper dashboard with Twilio OTP authentication",
+    description="API for shopkeeper dashboard and WhatsApp webhook",
     version="1.0.0"
 ) 
 
@@ -44,29 +49,55 @@ def health_check():
     return {"status": "healthy", "service": "munimji-dashboard"}
 
 
-# WhatsApp Webhook Verification (Meta requires this)
-VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN", "my_verify_token")
+# ==================== WhatsApp Webhook ====================
+# Import WhatsApp handlers
+try:
+    from backend.whatsapp.handlers import webhook_verify, webhook_receiver, get_db
+    from backend.whatsapp.utils import send_text_message_async
+    WHATSAPP_ENABLED = True
+    LOG.info("✅ WhatsApp handlers loaded successfully")
+except ImportError as e:
+    WHATSAPP_ENABLED = False
+    LOG.warning(f"⚠️ WhatsApp handlers not available: {e}")
+
 
 @app.get("/webhook")
-def verify_webhook(
+async def verify_webhook(
     hub_mode: str = Query(None, alias="hub.mode"),
-    hub_challenge: str = Query(None, alias="hub.challenge"),
-    hub_verify_token: str = Query(None, alias="hub.verify_token")
+    hub_verify_token: str = Query(None, alias="hub.verify_token"),
+    hub_challenge: str = Query(None, alias="hub.challenge")
 ):
     """WhatsApp webhook verification endpoint"""
+    if WHATSAPP_ENABLED:
+        return await webhook_verify(hub_mode, hub_verify_token, hub_challenge)
+    
+    # Fallback verification
+    VERIFY_TOKEN = os.getenv("WEBHOOK_VERIFY_TOKEN", "my_verify_token")
     if hub_mode == "subscribe" and hub_verify_token == VERIFY_TOKEN:
-        return int(hub_challenge)
-    return {"error": "Verification failed"}, 403
+        return PlainTextResponse(content=hub_challenge or "", status_code=200)
+    return JSONResponse({"error": "Verification failed"}, status_code=403)
 
 
 @app.post("/webhook")
-async def webhook_handler(request: Request):
+async def receive_webhook(
+    request: Request, 
+    background_tasks: BackgroundTasks, 
+    x_hub_signature_256: str = Header(None)
+):
     """Handle incoming WhatsApp messages"""
-    # For now, just acknowledge receipt
-    # Full WhatsApp handling can be added later
+    if WHATSAPP_ENABLED:
+        # Get DB session
+        from backend.chatbot_backend.db.session import SessionLocal
+        db = SessionLocal()
+        try:
+            return await webhook_receiver(request, background_tasks, x_hub_signature_256, db)
+        finally:
+            db.close()
+    
+    # Fallback: just log and acknowledge
     body = await request.json()
-    print(f"📩 Webhook received: {body}")
-    return {"status": "received"}
+    LOG.info(f"📩 Webhook received (handlers not loaded): {body}")
+    return JSONResponse({"status": "received"}, status_code=200)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
-# Minimal requirements for Dashboard API only
-# This is ~95% smaller than full dependencies (no ML/AI packages)
+# Requirements for Dashboard API + WhatsApp Webhook
 
 fastapi>=0.104.1
 uvicorn[standard]>=0.24.0
@@ -7,3 +6,18 @@ sqlalchemy>=2.0.0
 psycopg2-binary>=2.9.0
 pydantic>=2.0.0
 python-dotenv>=1.0.0
+httpx>=0.25.0
+aiofiles>=23.1.0
+
+# For full WhatsApp + AI chatbot (adds ~5min build time)
+groq>=0.9.0
+langchain>=0.3.0
+langchain-core>=0.3.0
+langgraph>=0.2.0
+langchain-community>=0.3.0
+langchain-postgres>=0.0.12
+langchain-huggingface>=0.1.0
+sentence-transformers>=2.2.2
+pgvector>=0.2.4
+pillow>=10.0.0
+pytesseract>=0.3.10
