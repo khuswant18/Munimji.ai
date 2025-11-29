@@ -19,7 +19,7 @@ const Contact: React.FC = () => {
                   <MessageCircle size={28} strokeWidth={1.5} />
                 </div>
                 <h3 className="font-bold text-xl text-gray-900 mb-2">WhatsApp</h3>
-                <p className="text-gray-500 mb-6 text-sm">Chat directly with support</p>
+                <p className="text-gray-500 mb-6 text-sm">Chat directly with support </p>
                 <span className="text-brand-green font-semibold text-sm group-hover:underline">Start Chat</span>
               </div>
             </a>
