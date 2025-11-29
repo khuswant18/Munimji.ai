@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: munimji-backend
+    runtime: python
+    buildCommand: pip install -r backend/requirements-dashboard.txt
+    startCommand: uvicorn backend.dashboard.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"

@@ -1,0 +1,9 @@
+# Minimal requirements for Dashboard API only
+# This is ~95% smaller than full dependencies (no ML/AI packages)
+
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
