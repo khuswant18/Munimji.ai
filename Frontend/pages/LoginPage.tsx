@@ -1,29 +1,55 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../utils/auth';
-import { MessageCircle, ArrowRight } from 'lucide-react';
+import { authAPI } from '../utils/api';
+import { MessageCircle, ArrowRight, Loader2 } from 'lucide-react';
 import HeroVisual from '../components/HeroVisual';
 
 const LoginPage: React.FC = () => {
   const [phone, setPhone] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSendOtp = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (phone.length >= 10) {
-      setOtpSent(true);
+    setError('');
+    
+    if (phone.length < 10) {
+      setError('Please enter a valid 10-digit phone number');
+      return;
     }
-  };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp === '1234') { 
-      login(phone);
-      navigate('/dashboard');
-    } else {
-      alert('Invalid OTP. Use 1234');
+    setLoading(true);
+    
+    try {
+      // Format phone number with +91
+      const formattedPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
+      
+      const response = await authAPI.login(formattedPhone);
+
+      if (response.error) {
+        setError(response.error);
+        setLoading(false);
+        return;
+      }
+
+      if (response.data?.success && response.data.token && response.data.user) {
+        console.log('✅ Login successful, token:', response.data.token);
+        // Store token and user info
+        login(response.data.token, response.data.user);
+        console.log('✅ Token stored in localStorage');
+        // Small delay to ensure localStorage is written
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 100);
+      } else {
+        setError('Login failed. Please try again.');
+        setLoading(false);
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+      setLoading(false);
     }
   };
 
@@ -43,14 +69,18 @@ const LoginPage: React.FC = () => {
                 <div className="w-8 h-8 bg-[#0F172A] rounded-full flex items-center justify-center text-white font-bold text-sm">M</div>
                 <span className="font-bold text-xl text-[#0F172A]">Munimji</span>
              </div>
-             <h1 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-3">Welcome back</h1>
+             <h1 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-3">Welcome to Munimji</h1>
              <p className="text-slate-500 leading-relaxed">
-               You were onboarded via WhatsApp — please use the same phone number to access your dashboard.
+               Enter your phone number to instantly access your dashboard and view all your business transactions.
              </p>
            </div>
 
-           {!otpSent ? (
-            <form onSubmit={handleSendOtp} className="space-y-6 max-w-sm">
+           <form onSubmit={handleLogin} className="space-y-6 max-w-sm">
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-bold text-[#0F172A] mb-2">Phone Number</label>
                 <div className="relative group">
@@ -58,16 +88,29 @@ const LoginPage: React.FC = () => {
                   <input 
                     type="tel" 
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     className="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#006A4E]/20 focus:border-[#006A4E] transition-all font-bold text-lg text-slate-800"
                     placeholder="98765 43210"
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
               
-              <button type="submit" className="w-full bg-[#0F172A] hover:bg-slate-800 text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2">
-                Send OTP <ArrowRight size={18} />
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full bg-[#006A4E] hover:bg-[#005a42] text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" /> Loading your dashboard...
+                  </>
+                ) : (
+                  <>
+                    Continue <ArrowRight size={18} />
+                  </>
+                )}
               </button>
 
               <div className="relative py-2">
@@ -78,35 +121,12 @@ const LoginPage: React.FC = () => {
               <button 
                 type="button"
                 onClick={handleWhatsAppLogin}
-                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2"
+                disabled={loading}
+                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <MessageCircle size={20} /> Sign in with WhatsApp
               </button>
             </form>
-          ) : (
-            <form onSubmit={handleLogin} className="space-y-6 max-w-sm animate-in fade-in slide-in-from-right-4">
-              <div>
-                 <div className="flex justify-between items-center mb-2">
-                   <label className="block text-sm font-bold text-[#0F172A]">Enter OTP</label>
-                   <button type="button" onClick={() => setOtpSent(false)} className="text-xs text-[#006A4E] font-bold hover:underline">Change Number</button>
-                 </div>
-                <input 
-                  type="text" 
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="w-full px-4 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#006A4E]/20 focus:border-[#006A4E] transition-all font-bold text-center text-3xl tracking-[0.5em] text-slate-800"
-                  placeholder="••••"
-                  maxLength={4}
-                  required
-                />
-                <p className="text-xs text-slate-400 mt-2 text-center">Use OTP: 1234</p>
-              </div>
-              
-              <button type="submit" className="w-full bg-[#006A4E] hover:bg-[#005a42] text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2">
-                Verify & Login <ArrowRight size={18} />
-              </button>
-            </form>
-          )}
         </div>
 
         {/* Right: Visual */}

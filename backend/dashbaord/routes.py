@@ -1,5 +1,4 @@
 # backend/dashboard/routes.py
-import os
 import random
 import string
 from typing import List, Optional, Dict
@@ -7,69 +6,37 @@ from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, HTTPException, Header, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, or_
-
-# Twilio client (optional)
-from twilio.rest import Client as TwilioClient
+from sqlalchemy import func
+import logging
 
 # reuse your existing DB session and models
 from ..chatbot_backend.db.session import get_db
 from ..chatbot_backend.db.models import User
-from .models import LedgerEntry, Customer, Supplier  # assume these exist & have sensible fields
+from .models import LedgerEntry, Customer, Supplier
+
+LOG = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
 
-# In-memory stores for demo; replace with Redis/JWT for prod
-otp_store: Dict[str, str] = {}
-token_store: Dict[str, int] = {}  # token -> user_id mapping (demo)
+# In-memory token store for demo; replace with Redis/JWT for prod
+token_store: Dict[str, int] = {}  # token -> user_id mapping
 
 
 # ---------- Utilities ----------
-def _gen_otp(length: int = 6) -> str:
-    return "".join(random.choices(string.digits, k=length))
-
-
 def _gen_token(length: int = 32) -> str:
     chars = string.ascii_letters + string.digits
     return "".join(random.choices(chars, k=length))
 
 
-def _send_otp_via_twilio(phone: str, otp: str) -> bool:
-    sid = os.environ.get("TWILIO_ACCOUNT_SID")
-    auth = os.environ.get("TWILIO_AUTH_TOKEN")
-    from_num = os.environ.get("TWILIO_FROM_NUMBER")
-    if not (sid and auth and from_num):
-        # Twilio not configured — print OTP for local development
-        print(f"[DEV-OTP] {phone} -> OTP: {otp}")
-        return False
-    client = TwilioClient(sid, auth)
-    body = f"Your Munimji login OTP is: {otp}"
-    try:
-        client.messages.create(to=phone, from_=from_num, body=body)
-        return True
-    except Exception as e:
-        print("Twilio send error:", e)
-        return False
-
-
 # ---------- Pydantic schemas ----------
-class SendOTPRequest(BaseModel):
+class LoginRequest(BaseModel):
     phone_number: str = Field(..., example="+919876543210")
 
 
-class SendOTPResponse(BaseModel):
+class LoginResponse(BaseModel):
     success: bool
-
-
-class VerifyOTPRequest(BaseModel):
-    phone_number: str
-    otp: str
-
-
-class VerifyOTPResponse(BaseModel):
-    success: bool
-    token: Optional[str] = None
-    user: Optional[Dict] = None
+    token: str
+    user: Dict
 
 
 class UserOut(BaseModel):
@@ -143,35 +110,38 @@ def get_current_user(authorization: Optional[str] = Header(None), db: Session = 
 
 
 # ---------- Auth endpoints ----------
-@router.post("/auth/send-otp", response_model=SendOTPResponse)
-def send_otp(req: SendOTPRequest):
+@router.post("/auth/login", response_model=LoginResponse)
+def login_with_phone(req: LoginRequest, db: Session = Depends(get_db)):
+    """Direct login with phone number - creates user if doesn't exist"""
+    LOG.info(f"🔐 Login request for phone: {req.phone_number}")
     phone = req.phone_number.strip()
-    otp = _gen_otp()
-    otp_store[phone] = otp
-    _send_otp_via_twilio(phone, otp)
-    # For security: do not return OTP in response; printed to console in dev mode
-    return SendOTPResponse(success=True)
-
-
-@router.post("/auth/verify-otp", response_model=VerifyOTPResponse)
-def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
-    phone = req.phone_number.strip()
-    expected = otp_store.get(phone)
-    if not expected or req.otp.strip() != expected:
-        raise HTTPException(status_code=400, detail="Invalid OTP")
-    # OTP valid -> create/fetch user
+    
+    # Find or create user
     user = db.query(User).filter(User.phone_number == phone).first()
     if not user:
+        LOG.info(f"📝 Creating new user for {phone}")
         user = User(phone_number=phone)
         db.add(user)
         db.commit()
         db.refresh(user)
-    # create token and store mapping
+    else:
+        LOG.info(f"👤 Existing user found: {phone}, user_id: {user.id}")
+    
+    # Generate token and store mapping
     token = _gen_token()
     token_store[token] = user.id
-    # clear otp
-    otp_store.pop(phone, None)
-    return VerifyOTPResponse(success=True, token=token, user={"id": user.id, "phone_number": user.phone_number, "name": user.name})
+    
+    LOG.info(f"✅ Login successful for {phone}, user_id: {user.id}")
+    return LoginResponse(
+        success=True, 
+        token=token, 
+        user={
+            "id": user.id, 
+            "phone_number": user.phone_number, 
+            "name": user.name,
+            "shop_name": user.shop_name
+        }
+    )
 
 
 @router.post("/auth/logout")

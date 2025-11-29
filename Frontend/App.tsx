@@ -2,6 +2,7 @@ import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import About from './pages/About';
 import Privacy from './pages/Privacy';
@@ -33,9 +34,11 @@ const App: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/dashboard/*" element={
-              <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
-                <DashboardPage />
-              </Suspense>
+              <ProtectedRoute>
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+                  <DashboardPage />
+                </Suspense>
+              </ProtectedRoute>
             } />
             <Route path="/about" element={<About />} />
             <Route path="/how-it-works" element={<HowItWorks />} />

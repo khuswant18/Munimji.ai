@@ -35,7 +35,7 @@ const Pricing: React.FC = () => {
             </li>
           </ul>
 
-          <a href="https://wa.me/1234567890" className="block w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl transition-colors">
+          <a href="https://wa.me/+15551971304" className="block w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl transition-colors">
             Get Started Free
           </a>
         </div>
