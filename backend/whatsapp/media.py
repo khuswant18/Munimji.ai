@@ -5,6 +5,9 @@ from .chatbot import call_chatbot_and_respond
 from typing import Optional
 import logging
 import json
+import os
+
+from starlette.concurrency import run_in_threadpool
 
 LOG = logging.getLogger(__name__)
 
@@ -226,9 +229,50 @@ async def process_downloaded_video(media_id: str, sender: str, mime_hint: Option
     Downloads the video and transcribes audio track.
     """
     try:
-        await send_text_message_async(sender, "🎥 Video mila... audio nikal raha hoon...")
+        await send_text_message_async(sender, "🎥 Video mila... model ko bhej raha hoon (thoda time lag sakta hai)...")
+
         file_path = await download_media_to_disk(media_id, sender, mime_hint)
-        await process_audio_and_respond(sender, file_path)
+
+        NGROK_URL = os.getenv("VIDEO_MODEL_API")
+        if not NGROK_URL:
+            await send_text_message_async(sender, "⚠️ Video model URL configured nahi hai. Admin se batao.")
+            # Still attempt audio extraction as fallback
+            await process_audio_and_respond(sender, file_path)
+            return
+
+        import requests
+
+        # Stream file to remote model in threadpool to avoid blocking event loop
+        def _post_file():
+            with open(file_path, "rb") as fh:
+                files = {"file": (os.path.basename(file_path) or "video.mp4", fh, mime_hint or "video/mp4")}
+                return requests.post(f"{NGROK_URL.rstrip('/')}/detect", files=files, timeout=120)
+
+        try:
+            response = await run_in_threadpool(_post_file)
+        except Exception as e:
+            LOG.exception(f"Error posting video to model: {e}")
+            await send_text_message_async(sender, "❌ Video model tak bhejne mein error aaya. Audio nikal kar dobara try karo.")
+            # Fallback to audio processing
+            await process_audio_and_respond(sender, file_path)
+            return
+
+        # Try to parse JSON response, otherwise include text/status
+        try:
+            result = response.json()
+        except Exception:
+            result = {"status_code": response.status_code, "text": response.text}
+
+        # Send a concise message back to the sender with result summary
+        try:
+            summary = json.dumps(result) if not isinstance(result, str) else str(result)
+            # Truncate long responses
+            if len(summary) > 1000:
+                summary = summary[:1000] + "..."
+            await send_text_message_async(sender, f"🔎 Video analysis complete:\n{summary}")
+        except Exception as e:
+            LOG.warning(f"Failed to notify user of video result: {e}")
+            await send_text_message_async(sender, "✅ Video analysis complete. (Result available to admin)")
     except Exception as e:
         LOG.exception(f"Error downloading/processing video: {e}")
         await send_text_message_async(sender, "❌ Video process nahi ho paya. Audio bhejo instead.")

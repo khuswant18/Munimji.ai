@@ -240,34 +240,16 @@ async def webhook_receiver(request: Request, background_tasks: BackgroundTasks, 
                         db.commit()
 
                     elif mtype == "video":
-                        import requests
-                        import os
+                        media_obj = message.get("video", {}) or {}
+                        media_id = media_obj.get("id")
+                        mime = media_obj.get("mime_type")
 
-                        NGROK_URL = os.getenv("VIDEO_MODEL_API")  # from .env
+                        # Enqueue processing similar to image/audio
+                        background_tasks.add_task(process_downloaded_video, media_id, sender, mime)
 
-                        # `file_bytes` contains the downloaded video already
-                        files = {"file": ("video.mp4", file_bytes, "video/mp4")}
-
-                        try:
-                            print("➡️ Sending video to YOLO model via ngrok...")
-                            response = requests.post(f"{NGROK_URL}/detect", files=files)
-
-                            # catch JSON response from video_model
-                            result = response.json()
-
-                            print("⬅️ YOLO returned:", result)
-
-                            return {
-                                "type": "video_detection",
-                                "yolo_output": result
-                            }
-
-                        except Exception as e:
-                            print("❌ Video model error:", e)
-                            return {
-                                "type": "video_detection",
-                                "error": str(e)
-                            }
+                        conv = Conversation(user_id=user.id, last_message=f"Video: {media_id}", context={"type": mtype, "media_id": media_id})
+                        db.add(conv)
+                        db.commit()
 
 
                     elif mtype == "document":
