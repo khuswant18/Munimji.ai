@@ -30,7 +30,7 @@ const Privacy: React.FC = () => {
         <section>
           <h2 className="text-xl font-bold text-gray-900 mb-3">3. How We Access WhatsApp Data</h2>
           <p>
-            WhatsApp messages and media are delivered to Munimji through the <strong>WhatsApp Business API</strong> (a Meta service). Messages you send to our WhatsApp number pass through Meta's infrastructure. We do not scrape or access your personal WhatsApp conversations outside the messages you explicitly send to our Munimji number.
+            WhatsApp messages and media are delivered to Munimji through the <strong>WhatsApp Business API </strong> (a Meta service). Messages you send to our WhatsApp number pass through Meta's infrastructure. We do not scrape or access your personal WhatsApp conversations outside the messages you explicitly send to our Munimji number.
           </p>
           <p className="mt-2">
             When you contact Munimji via WhatsApp, Meta (WhatsApp) may process message metadata and content as described in their policies. Please review <a href="https://www.whatsapp.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">WhatsApp's Privacy Policy</a> for details.
