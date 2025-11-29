@@ -32,7 +32,7 @@ const Home: React.FC = () => {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <a
-                  href="https://wa.me/1234567890"
+                  href="https://wa.me/+15551971304"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-brand-green hover:bg-brand-dark text-white px-6 py-3 min-h-[44px] rounded-full font-semibold text-base transition-all flex items-center justify-center gap-2 shadow-xl shadow-green-900/10 hover:shadow-primary/20 transform hover:-translate-y-0.5"
@@ -142,7 +142,7 @@ const Home: React.FC = () => {
               Be the first to experience smarter business money!
             </h2>
             <a
-              href="https://wa.me/1234567890?text=I%20want%20to%20try%20Munimji"
+              href="https://wa.me/+15551971304?text=I%20want%20to%20try%20Munimji"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#006A4E] hover:bg-[#004D38] text-white text-lg font-bold px-8 py-4 min-h-[44px] rounded-full transition-transform hover:scale-105 shadow-xl"

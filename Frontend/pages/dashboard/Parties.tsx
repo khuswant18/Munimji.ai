@@ -1,27 +1,100 @@
-import React, { useState } from 'react';
-import { Party } from '../../utils/types';
-import { Phone, MessageCircle, Search, FileText } from 'lucide-react';
-import { MOCK_TRANSACTIONS } from '../../utils/constants';
+import React, { useState, useEffect } from 'react';
+import { Phone, MessageCircle, Search, FileText, Loader2 } from 'lucide-react';
+import { dashboardAPI, CustomerData, SupplierData, LedgerEntryData } from '../../utils/api';
 import LedgerTable from '../../components/LedgerTable';
+import { Transaction, TransactionType, PaymentMethod } from '../../utils/types';
 
 interface PartiesProps {
   type: 'CUSTOMER' | 'SUPPLIER';
-  data: Party[];
+  data?: any[]; // Legacy prop, not used anymore
 }
 
-const Parties: React.FC<PartiesProps> = ({ type, data }) => {
-  const [selectedParty, setSelectedParty] = useState<Party | null>(data[0] || null);
+const Parties: React.FC<PartiesProps> = ({ type }) => {
+  const [parties, setParties] = useState<(CustomerData | SupplierData)[]>([]);
+  const [selectedParty, setSelectedParty] = useState<(CustomerData | SupplierData) | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [ledgerData, setLedgerData] = useState<LedgerEntryData[]>([]);
+  const [loadingLedger, setLoadingLedger] = useState(false);
 
-  const filteredData = data.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  
-  const partyTransactions = selectedParty 
-    ? MOCK_TRANSACTIONS.filter(t => t.partyName === selectedParty.name)
-    : [];
+  useEffect(() => {
+    loadParties();
+  }, [type]);
 
-  const handleReminder = (phone: string, name: string) => {
-    window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=Hi ${name}, gentle reminder regarding the pending payment of ₹${selectedParty?.balance}`, '_blank');
+  useEffect(() => {
+    if (selectedParty) {
+      loadPartyLedger();
+    }
+  }, [selectedParty]);
+
+  const loadParties = async () => {
+    setLoading(true);
+    const response = type === 'CUSTOMER' 
+      ? await dashboardAPI.getCustomers()
+      : await dashboardAPI.getSuppliers();
+    
+    setLoading(false);
+
+    if (response.data) {
+      setParties(response.data);
+      if (response.data.length > 0) {
+        setSelectedParty(response.data[0]);
+      }
+    }
   };
+
+  const loadPartyLedger = async () => {
+    if (!selectedParty) return;
+    
+    setLoadingLedger(true);
+    const response = await dashboardAPI.getLedger(100);
+    setLoadingLedger(false);
+
+    if (response.data) {
+      // Filter ledger entries for selected party
+      const filtered = response.data.filter(
+        entry => entry.counterparty_name === selectedParty.name
+      );
+      setLedgerData(filtered);
+    }
+  };
+
+  const filteredData = parties.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Convert API ledger entries to Transaction format for LedgerTable
+  const partyTransactions: Transaction[] = ledgerData.map(entry => ({
+    id: entry.id.toString(),
+    date: entry.date || 'N/A',
+    partyName: entry.counterparty_name || 'Unknown',
+    amount: entry.amount,
+    type: entry.type.toUpperCase() as TransactionType,
+    status: 'COMPLETED' as const,
+    note: entry.description,
+    paymentMethod: (entry.source?.toUpperCase() as PaymentMethod) || PaymentMethod.CASH,
+    isReconciled: true,
+  }));
+
+  const handleReminder = (phone: string | undefined, name: string, balance: number) => {
+    if (!phone) {
+      alert('Phone number not available');
+      return;
+    }
+    const cleanPhone = phone.replace(/\D/g, '');
+    window.open(
+      `https://wa.me/${cleanPhone}?text=Hi ${name}, gentle reminder regarding the pending payment of ₹${balance}`, 
+      '_blank'
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="animate-spin text-[#006A4E]" size={40} />
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-140px)] font-manrope">
@@ -49,13 +122,15 @@ const Parties: React.FC<PartiesProps> = ({ type, data }) => {
             >
               <div className="flex justify-between items-start mb-1">
                 <h4 className={`font-bold text-sm ${selectedParty?.id === party.id ? 'text-[#0F172A]' : 'text-slate-700'}`}>{party.name}</h4>
-                <span className={`text-xs font-bold ${party.balance > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                  {party.balance > 0 ? '+' : ''}₹{party.balance}
+                <span className={`text-xs font-bold ${party.outstanding_balance > 0 ? 'text-green-600' : party.outstanding_balance < 0 ? 'text-red-500' : 'text-slate-400'}`}>
+                  {party.outstanding_balance > 0 ? '+' : ''}₹{Math.abs(party.outstanding_balance).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center text-xs text-slate-400">
-                <span>Last: {party.lastActive}</span>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] ${party.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{party.status}</span>
+                <span>Last: {party.last_activity || 'N/A'}</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${party.outstanding_balance !== 0 ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {party.outstanding_balance !== 0 ? 'ACTIVE' : 'SETTLED'}
+                </span>
               </div>
             </div>
           ))}
@@ -74,12 +149,14 @@ const Parties: React.FC<PartiesProps> = ({ type, data }) => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-slate-800">{selectedParty.name}</h2>
-                    <p className="text-slate-500 text-sm flex items-center gap-2"><Phone size={14} /> {selectedParty.phone}</p>
+                    <p className="text-slate-500 text-sm flex items-center gap-2">
+                      <Phone size={14} /> {selectedParty.phone_number || 'No phone'}
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-3 w-full md:w-auto">
                    <button 
-                    onClick={() => handleReminder(selectedParty.phone, selectedParty.name)}
+                    onClick={() => handleReminder(selectedParty.phone_number, selectedParty.name, selectedParty.outstanding_balance)}
                     className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-green-50 text-green-700 hover:bg-green-100 px-4 py-2.5 rounded-xl font-bold text-sm transition-colors"
                    >
                      <MessageCircle size={18} /> {type === 'CUSTOMER' ? 'Remind' : 'Message'}
@@ -92,7 +169,13 @@ const Parties: React.FC<PartiesProps> = ({ type, data }) => {
              
              {/* Transactions Table Wrapper */}
              <div className="flex-1 overflow-hidden flex flex-col">
-                <LedgerTable transactions={partyTransactions} title={`Ledger with ${selectedParty.name}`} />
+                {loadingLedger ? (
+                  <div className="flex items-center justify-center h-64">
+                    <Loader2 className="animate-spin text-[#006A4E]" size={32} />
+                  </div>
+                ) : (
+                  <LedgerTable transactions={partyTransactions} title={`Ledger with ${selectedParty.name}`} />
+                )}
              </div>
            </>
          ) : (

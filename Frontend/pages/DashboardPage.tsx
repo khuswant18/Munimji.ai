@@ -1,6 +1,5 @@
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { MOCK_CUSTOMERS, MOCK_SUPPLIERS } from '../utils/constants';
 
 const Overview = lazy(() => import('./dashboard/Overview'));
 const Parties = lazy(() => import('./dashboard/Parties'));
@@ -18,8 +17,8 @@ const DashboardPage: React.FC = () => {
         <Routes>
           <Route path="/" element={<Overview />} />
           <Route path="ledger" element={<LedgerView />} />
-          <Route path="customers" element={<Parties type="CUSTOMER" data={MOCK_CUSTOMERS} />} />
-          <Route path="suppliers" element={<Parties type="SUPPLIER" data={MOCK_SUPPLIERS} />} />
+          <Route path="customers" element={<Parties type="CUSTOMER" />} />
+          <Route path="suppliers" element={<Parties type="SUPPLIER" />} />
           <Route path="cashbook" element={<CashbookView />} />
           <Route path="expenses" element={<Expenses />} />
           <Route path="reports" element={<ReportsView />} />

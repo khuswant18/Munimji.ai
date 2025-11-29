@@ -13,7 +13,7 @@ const Contact: React.FC = () => {
 
           <div className="grid md:grid-cols-3 gap-6">
             {/* WhatsApp Card */}
-            <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" className="group block">
+            <a href="https://wa.me/+15551971304" target="_blank" rel="noopener noreferrer" className="group block">
               <div className="bg-white rounded-[2rem] p-8 shadow-soft hover:shadow-card transition-all duration-300 h-full flex flex-col items-center justify-center text-center border border-transparent hover:border-green-100 relative overflow-hidden">
                 <div className="w-14 h-14 bg-green-50 text-brand-green rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <MessageCircle size={28} strokeWidth={1.5} />

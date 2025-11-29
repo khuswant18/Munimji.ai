@@ -84,7 +84,7 @@ const Navbar: React.FC = () => {
             <ProfileDropdown />
           ) : (
             <a
-              href="https://wa.me/1234567890?text=I%20want%20to%20try%20Munimji"
+              href="https://wa.me/+15551971304?text=I%20want%20to%20try%20Munimji"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-[#006A4E] hover:bg-[#005a42] text-white text-sm font-semibold py-2.5 px-6 rounded-full transition-colors flex items-center gap-2 shadow-md shadow-green-900/10"
@@ -136,7 +136,7 @@ const Navbar: React.FC = () => {
              </button>
           ) : (
             <a
-              href="https://wa.me/1234567890?text=I%20want%20to%20try%20Munimji"
+              href="https://wa.me/+15551971304?text=I%20want%20to%20try%20Munimji"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-[#006A4E] text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#005a42] transition-colors"
