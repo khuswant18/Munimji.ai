@@ -3,8 +3,15 @@ from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, BIGINT, Foreign
 from sqlalchemy.dialects.postgresql import JSONB, BYTEA
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from pgvector.sqlalchemy import Vector
 from .session import Base
+
+# Optional pgvector import - only needed for Memory model embeddings
+try:
+    from pgvector.sqlalchemy import Vector
+    HAS_PGVECTOR = True
+except ImportError:
+    Vector = None
+    HAS_PGVECTOR = False
 
 class User(Base):
     __tablename__ = "users"
@@ -36,7 +43,9 @@ class Memory(Base):
     user_id = Column(BIGINT, ForeignKey("users.id", ondelete="CASCADE"))
     key = Column(String)  # e.g., "message_embedding"
     value = Column(Text)  # Raw message text
-    embedding_vector = Column(Vector(768))  # Adjust dimension based on your embedding model (e.g., 768 for sentence-transformers)
+    # Vector column only available when pgvector is installed
+    if HAS_PGVECTOR:
+        embedding_vector = Column(Vector(768))  # Adjust dimension based on your embedding model
     created_at = Column(TIMESTAMP, server_default=func.now())
 
 # Import dashboard models for Alembic detection 
